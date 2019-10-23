@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iyokan-L1", "Iyokan-L1.csproj", "{513D0AD4-73ED-4175-8F53-4E0D128B7FDB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{513D0AD4-73ED-4175-8F53-4E0D128B7FDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{513D0AD4-73ED-4175-8F53-4E0D128B7FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{513D0AD4-73ED-4175-8F53-4E0D128B7FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{513D0AD4-73ED-4175-8F53-4E0D128B7FDB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

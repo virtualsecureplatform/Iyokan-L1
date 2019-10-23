@@ -1,0 +1,262 @@
+{
+  "creator": "Yosys 0.9 (git sha1 UNKNOWN, clang 8.0.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fPIC -Os)",
+  "modules": {
+    "YosysTest": {
+      "attributes": {
+        "top": 1,
+        "src": "YosysTest.v:14"
+      },
+      "ports": {
+        "clock": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "io_in": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7 ]
+        },
+        "io_out": {
+          "direction": "output",
+          "bits": [ 8, 9, 10, 11 ]
+        }
+      },
+      "cells": {
+        "$abc$129$auto$blifparse.cc:371:parse_blif$130": {
+          "hide_name": 1,
+          "type": "$_NOT_",
+          "parameters": {
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 12 ],
+            "Y": [ 8 ]
+          }
+        },
+        "$abc$129$auto$blifparse.cc:371:parse_blif$131": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 13 ],
+            "B": [ 12 ],
+            "Y": [ 14 ]
+          }
+        },
+        "$abc$129$auto$blifparse.cc:371:parse_blif$132": {
+          "hide_name": 1,
+          "type": "$_XOR_",
+          "parameters": {
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 13 ],
+            "B": [ 12 ],
+            "Y": [ 9 ]
+          }
+        },
+        "$abc$129$auto$blifparse.cc:371:parse_blif$133": {
+          "hide_name": 1,
+          "type": "$_NAND_",
+          "parameters": {
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 15 ],
+            "B": [ 14 ],
+            "Y": [ 16 ]
+          }
+        },
+        "$abc$129$auto$blifparse.cc:371:parse_blif$134": {
+          "hide_name": 1,
+          "type": "$_XOR_",
+          "parameters": {
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 15 ],
+            "B": [ 14 ],
+            "Y": [ 10 ]
+          }
+        },
+        "$abc$129$auto$blifparse.cc:371:parse_blif$135": {
+          "hide_name": 1,
+          "type": "$_XNOR_",
+          "parameters": {
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 17 ],
+            "B": [ 16 ],
+            "Y": [ 11 ]
+          }
+        },
+        "$auto$simplemap.cc:420:simplemap_dff$49": {
+          "hide_name": 1,
+          "type": "$_DFF_P_",
+          "parameters": {
+          },
+          "attributes": {
+            "src": "YosysTest.v:39"
+          },
+          "port_directions": {
+            "C": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "C": [ 2 ],
+            "D": [ 4 ],
+            "Q": [ 12 ]
+          }
+        },
+        "$auto$simplemap.cc:420:simplemap_dff$50": {
+          "hide_name": 1,
+          "type": "$_DFF_P_",
+          "parameters": {
+          },
+          "attributes": {
+            "src": "YosysTest.v:39"
+          },
+          "port_directions": {
+            "C": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "C": [ 2 ],
+            "D": [ 5 ],
+            "Q": [ 13 ]
+          }
+        },
+        "$auto$simplemap.cc:420:simplemap_dff$51": {
+          "hide_name": 1,
+          "type": "$_DFF_P_",
+          "parameters": {
+          },
+          "attributes": {
+            "src": "YosysTest.v:39"
+          },
+          "port_directions": {
+            "C": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "C": [ 2 ],
+            "D": [ 6 ],
+            "Q": [ 15 ]
+          }
+        },
+        "$auto$simplemap.cc:420:simplemap_dff$52": {
+          "hide_name": 1,
+          "type": "$_DFF_P_",
+          "parameters": {
+          },
+          "attributes": {
+            "src": "YosysTest.v:39"
+          },
+          "port_directions": {
+            "C": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "C": [ 2 ],
+            "D": [ 7 ],
+            "Q": [ 17 ]
+          }
+        }
+      },
+      "netnames": {
+        "$abc$129$n10": {
+          "hide_name": 1,
+          "bits": [ 14 ],
+          "attributes": {
+          }
+        },
+        "$abc$129$n12": {
+          "hide_name": 1,
+          "bits": [ 16 ],
+          "attributes": {
+          }
+        },
+        "clock": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "YosysTest.v:15"
+          }
+        },
+        "io_in": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7 ],
+          "attributes": {
+            "src": "YosysTest.v:17"
+          }
+        },
+        "io_out": {
+          "hide_name": 0,
+          "bits": [ 8, 9, 10, 11 ],
+          "attributes": {
+            "src": "YosysTest.v:18"
+          }
+        },
+        "reg$": {
+          "hide_name": 0,
+          "bits": [ 12, 13, 15, 17 ],
+          "attributes": {
+            "src": "YosysTest.v:20"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "YosysTest.v:16"
+          }
+        }
+      }
+    }
+  }
+}
