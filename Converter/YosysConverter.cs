@@ -33,7 +33,6 @@ namespace Iyokan_L1.Converter
                 foreach (var item in port)
                 {
                     netList.Add(item);
-                    Console.WriteLine(item);
                 }
             }
 
@@ -41,7 +40,6 @@ namespace Iyokan_L1.Converter
             {
                 var cell = ConvertYosysCell(yosysCell);
                 netList.Add(cell);
-                Console.WriteLine(cell);
             }
 
             NetListResolver();
