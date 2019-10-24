@@ -12,10 +12,8 @@ namespace Iyokan_L1.Models
     {
         public class Input
         {
-            [JsonIgnore] public Logic cellC { get; set; }
             [JsonIgnore] public Logic cellD { get; set; }
 
-            public int C { get; set; }
             public int D { get; set; }
         }
 
@@ -41,7 +39,6 @@ namespace Iyokan_L1.Models
 
         public override void Serialize()
         {
-            input.C = input.cellC.id;
             input.D = input.cellD.id;
             foreach (var cell in output.cellQ)
             {
@@ -52,29 +49,15 @@ namespace Iyokan_L1.Models
         public override string ToString()
         {
             return
-                $"[Cell] id:{this.id} type:{this.type} inputC:{this.input.C} inputD:{this.input.D} outputQ:{this.output.Q.ToString<int>()}";
+                $"[Cell] id:{this.id} type:{this.type} inputD:{this.input.D} outputQ:{this.output.Q.ToString<int>()}";
         }
 
         public override void ResolveNetList(YosysConverter converter)
         {
-            if (yosysConnections["C"].Count != 1)
-            {
-                throw new Exception("Invalid netList");
-            }
-
             if (yosysConnections["D"].Count != 1)
             {
                 throw new Exception("Invalid netList");
             }
-
-            int cellCyosysBit = yosysConnections["C"][0];
-            List<Logic> cellCConnection = converter.FindOutgoingNetContainsLogic(cellCyosysBit);
-            if (cellCConnection.Count != 1)
-            {
-                throw new Exception("Invalid netList");
-            }
-
-            input.cellC = cellCConnection[0];
 
             int cellDyosysBit = yosysConnections["D"][0];
             List<Logic> cellDConnection = converter.FindOutgoingNetContainsLogic(cellDyosysBit);

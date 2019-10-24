@@ -18,8 +18,8 @@ namespace Iyokan_L1
             var module = yosys.modules["YosysTest"];
             */
             YosysConverter converter = new YosysConverter("/home/naoki/Iyokan-L1/test/circuit.json");
-            converter.Convert();
-            //Console.WriteLine(converter.Convert());
+            var res = converter.Convert();
+            Console.WriteLine(res);
         }
     }
 }

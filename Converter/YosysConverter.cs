@@ -29,6 +29,10 @@ namespace Iyokan_L1.Converter
 
             foreach (var yosysPort in yosysPorts)
             {
+                if (yosysPort.Key == "reset" || yosysPort.Key == "clock")
+                {
+                    continue;
+                }
                 var port = ConvertYosysPort(yosysPort);
                 foreach (var item in port)
                 {

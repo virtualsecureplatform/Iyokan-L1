@@ -36,6 +36,7 @@ namespace Iyokan_L1.Models
 
         public override void Serialize()
         {
+            bits.RemoveAll(p => true);
             for (int i = 0; i < cellBits.Count; i++)
             {
                 bits.Add(cellBits[i].id);
