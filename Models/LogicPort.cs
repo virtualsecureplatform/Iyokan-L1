@@ -38,7 +38,7 @@ namespace Iyokan_L1.Models
         {
             for (int i = 0; i < cellBits.Count; i++)
             {
-                bits[i] = cellBits[i].id;
+                bits.Add(cellBits[i].id);
             }
         }
 

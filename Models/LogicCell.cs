@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Iyokan_L1.Converter;
 using Newtonsoft.Json;
 
 namespace Iyokan_L1.Models
@@ -69,11 +70,9 @@ namespace Iyokan_L1.Models
             }
             return false;
         }
-        
-        public override string ToString()
-        {
-            var res = $"[Cell] id: {this.id} type: {this.type}";
-            return res;
-        }
+
+        public override abstract string ToString();
+
+        public abstract void ResolveNetList(YosysConverter converter);
     }
 }

@@ -4,6 +4,7 @@ using System.ComponentModel.Design.Serialization;
 using System.IO;
 using System.Linq;
 using Iyokan_L1.Models;
+using Iyokan_L1.Utils;
 using Newtonsoft.Json;
 
 namespace Iyokan_L1.Converter
@@ -109,7 +110,7 @@ namespace Iyokan_L1.Converter
             }
         }
 
-        private List<Logic> FindIncomingNetContainsLogic(int netID)
+        public List<Logic> FindIncomingNetContainsLogic(int netID)
         {
             List<Logic> res = new List<Logic>();
             foreach (var port in netList.ports)
@@ -130,7 +131,7 @@ namespace Iyokan_L1.Converter
             return res;
         }
 
-        private List<Logic> FindOutgoingNetContainsLogic(int netID)
+        public List<Logic> FindOutgoingNetContainsLogic(int netID)
         {
             List<Logic> res = new List<Logic>();
             foreach (var port in netList.ports)
@@ -180,13 +181,20 @@ namespace Iyokan_L1.Converter
                         }
                 }
             }
+
+            foreach (var cell in netList.cells)
+            {
+                cell.ResolveNetList(this);
+                cell.Serialize();
+                Console.WriteLine(cell);
+            }
+            
             netList.ports.RemoveAll(p => p.cellBits.Count == 0);
         }
         private YosysNetList Deserialize()
         {
             var yosysJson = File.ReadAllText(jsonPath);
             return JsonConvert.DeserializeObject<YosysNetList>(yosysJson);
-            
         }
     }
 }
