@@ -15,10 +15,5 @@ namespace Iyokan_L1.Models
             this.yosysBit = yosysBit;
         }
 
-        public void Assign(int bit, LogicCell cell)
-        {
-            cellBits[bit] = cell;
-        }
-        
     }
 }

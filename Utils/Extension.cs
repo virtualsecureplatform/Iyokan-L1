@@ -19,7 +19,7 @@ namespace Iyokan_L1.Utils
 	                    return "[]";
                     }
                     sb.Remove(sb.Length-2, 2);
-        			sb.AppendLine("]");
+        			sb.Append("]");
         			return sb.ToString();
         		}
         	}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Iyokan_L1.Utils;
 using Newtonsoft.Json;
 
 namespace Iyokan_L1.Models
@@ -44,7 +45,7 @@ namespace Iyokan_L1.Models
 
         public override string ToString()
         {
-            var res = $"[Port] name:{this.name} id:{this.id} type:{this.type} yosysBit:{yosysBit}";
+            var res = $"[Port] name:{this.name} id:{this.id} type:{this.type} to:{bits.ToString<int>()}";
             return res;
         }
     }
