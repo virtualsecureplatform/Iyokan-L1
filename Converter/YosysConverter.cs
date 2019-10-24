@@ -155,26 +155,9 @@ namespace Iyokan_L1.Converter
         {
             foreach (var port in netList.ports)
             {
-                if (port.type == "input")
-                {
-                        port.cellBits = FindIncomingNetContainsLogic(port.yosysBit);
-                        if (port.cellBits.Count == 0)
-                        {
-                            Console.WriteLine($"Port {port.name} is not used");
-                        }
-                        port.Serialize();
-                        Console.WriteLine(port);
-                }
-                else if (port.type == "output")
-                {
-                        port.cellBits = FindOutgoingNetContainsLogic(port.yosysBit);
-                        if (port.cellBits.Count == 0)
-                        {
-                            Console.WriteLine($"Port {port.name} is not used");
-                        }
-                        port.Serialize();
-                        Console.WriteLine(port);
-                }
+                port.ResolveNetList(this);
+                port.Serialize();
+                Console.WriteLine(port);
             }
 
             foreach (var cell in netList.cells)

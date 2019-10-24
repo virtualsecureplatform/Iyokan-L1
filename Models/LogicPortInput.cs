@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using Iyokan_L1.Converter;
 using Microsoft.VisualBasic;
 
 namespace Iyokan_L1.Models
@@ -16,5 +17,14 @@ namespace Iyokan_L1.Models
             this.yosysBit = yosysBit;
         }
 
+        public override void ResolveNetList(YosysConverter converter)
+        {
+            cellBits = converter.FindIncomingNetContainsLogic(yosysBit);
+            if (cellBits.Count == 0)
+            {
+                Console.WriteLine($"Port {name} is not used");
+            }
+            Serialize();
+        }
     }
 }

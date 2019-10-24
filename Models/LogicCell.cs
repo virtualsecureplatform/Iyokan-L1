@@ -73,6 +73,5 @@ namespace Iyokan_L1.Models
 
         public override abstract string ToString();
 
-        public abstract void ResolveNetList(YosysConverter converter);
     }
 }
