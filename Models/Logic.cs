@@ -6,7 +6,7 @@ namespace Iyokan_L1.Models
     {
         public int id { get; set; }
         public string type { get; set; }
-        
+
         public abstract void Serialize();
         public abstract void ResolveNetList(YosysConverter converter);
     }

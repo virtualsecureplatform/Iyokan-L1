@@ -6,10 +6,8 @@ namespace Iyokan_L1.Models
 {
     public abstract class LogicCell : Logic
     {
-        [JsonIgnore]
-        public Dictionary<string, List<int>> yosysConnections { get; set; }
-        [JsonIgnore]
-        public Dictionary<string, string> yosysPortDirections { get; set; }
+        [JsonIgnore] public Dictionary<string, List<int>> yosysConnections { get; set; }
+        [JsonIgnore] public Dictionary<string, string> yosysPortDirections { get; set; }
 
 
         public void AttachYosysCell(YosysCell yosysCell)
@@ -31,6 +29,7 @@ namespace Iyokan_L1.Models
 
             return port;
         }
+
         private List<string> GetInputPort()
         {
             var port = new List<string>();
@@ -44,34 +43,35 @@ namespace Iyokan_L1.Models
 
             return port;
         }
-        
+
         public bool ContainOutputNet(int netID)
         {
             var outputPort = GetOutputPort();
-            foreach(var port in outputPort)
+            foreach (var port in outputPort)
             {
                 if (yosysConnections[port].Contains(netID))
                 {
                     return true;
                 }
             }
+
             return false;
         }
-        
+
         public bool ContainInputNet(int netID)
         {
             var inputPort = GetInputPort();
-            foreach(var port in inputPort)
+            foreach (var port in inputPort)
             {
                 if (yosysConnections[port].Contains(netID))
                 {
                     return true;
                 }
             }
+
             return false;
         }
 
         public override abstract string ToString();
-
     }
 }

@@ -15,29 +15,29 @@ namespace Iyokan_L1.Models
         }
 
         public void Add(LogicCell cell)
-        { 
-            cell.id = ports.Count+cells.Count;
+        {
+            cell.id = ports.Count + cells.Count;
             cells.Add(cell);
         }
 
         public void Add(LogicPort port)
         {
-                port.id = ports.Count+cells.Count;
-                ports.Add(port);
+            port.id = ports.Count + cells.Count;
+            ports.Add(port);
         }
 
         public string Serialize()
         {
             foreach (var item in cells)
             {
-               item.Serialize(); 
+                item.Serialize();
             }
 
             foreach (var item in ports)
             {
                 item.Serialize();
             }
-            
+
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
     }

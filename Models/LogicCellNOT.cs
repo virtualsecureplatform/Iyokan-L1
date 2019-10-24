@@ -12,23 +12,21 @@ namespace Iyokan_L1.Models
     {
         public class Input
         {
-            [JsonIgnore]
-            public Logic cellA { get; set; }
-            
+            [JsonIgnore] public Logic cellA { get; set; }
+
             public int A { get; set; }
         }
 
         public class Output
         {
-            [JsonIgnore]
-            public List<Logic> cellY { get; set; }            
-            
+            [JsonIgnore] public List<Logic> cellY { get; set; }
+
             public List<int> Y { get; set; }
         }
 
         public Input input { get; }
         public Output output { get; }
-        
+
         public LogicCellNOT(YosysCell yosysCell)
         {
             AttachYosysCell(yosysCell);
@@ -49,8 +47,9 @@ namespace Iyokan_L1.Models
         }
 
         public override string ToString()
-        { 
-            return $"[Cell] id:{this.id} type:{this.type} inputA:{this.input.A} outputY:{this.output.Y.ToString<int>()}";
+        {
+            return
+                $"[Cell] id:{this.id} type:{this.type} inputA:{this.input.A} outputY:{this.output.Y.ToString<int>()}";
         }
 
         public override void ResolveNetList(YosysConverter converter)
@@ -59,12 +58,14 @@ namespace Iyokan_L1.Models
             {
                 throw new Exception("Invalid netList");
             }
+
             int cellAyosysBit = yosysConnections["A"][0];
             List<Logic> cellAConnection = converter.FindOutgoingNetContainsLogic(cellAyosysBit);
             if (cellAConnection.Count != 1)
             {
                 throw new Exception("Invalid netList");
             }
+
             input.cellA = cellAConnection[0];
             var cellYyosysBits = yosysConnections["Y"];
             foreach (var bit in cellYyosysBits)

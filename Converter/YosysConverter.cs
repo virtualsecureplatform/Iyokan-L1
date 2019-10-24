@@ -13,6 +13,7 @@ namespace Iyokan_L1.Converter
     {
         private string jsonPath;
         private LogicNetList netList;
+
         public YosysConverter(string jsonPath)
         {
             this.jsonPath = jsonPath;
@@ -25,7 +26,7 @@ namespace Iyokan_L1.Converter
             var yosysModule = yosysNetList.modules.First();
             var yosysPorts = yosysModule.Value.ports;
             var yosysCells = yosysModule.Value.cells;
-            
+
             foreach (var yosysPort in yosysPorts)
             {
                 var port = ConvertYosysPort(yosysPort);
@@ -42,7 +43,7 @@ namespace Iyokan_L1.Converter
                 netList.Add(cell);
                 Console.WriteLine(cell);
             }
-            
+
             NetListResolver();
             return netList.Serialize();
         }
@@ -51,7 +52,7 @@ namespace Iyokan_L1.Converter
         {
             var direction = port.Value.direction;
             var bitWidth = port.Value.bits.Count;
-            var bits = port.Value.bits; 
+            var bits = port.Value.bits;
             var ports = new List<LogicPort>();
             switch (direction)
             {
@@ -72,15 +73,16 @@ namespace Iyokan_L1.Converter
                 case "output":
                     if (bitWidth == 1)
                     {
-                        ports.Add(new LogicPortOutput(port.Key, bits[0]));                        
+                        ports.Add(new LogicPortOutput(port.Key, bits[0]));
                     }
                     else
                     {
                         for (int i = 0; i < bitWidth; i++)
                         {
-                            ports.Add(new LogicPortOutput($"{port.Key}[{i}]", bits[i])); 
+                            ports.Add(new LogicPortOutput($"{port.Key}[{i}]", bits[i]));
                         }
                     }
+
                     return ports;
                 default:
                     throw new Exception($"Invalid direction token: {direction}");
@@ -120,6 +122,7 @@ namespace Iyokan_L1.Converter
                     res.Add(port);
                 }
             }
+
             foreach (var cell in netList.cells)
             {
                 if (cell.ContainInputNet(netID))
@@ -141,6 +144,7 @@ namespace Iyokan_L1.Converter
                     res.Add(port);
                 }
             }
+
             foreach (var cell in netList.cells)
             {
                 if (cell.ContainOutputNet(netID))
@@ -148,6 +152,7 @@ namespace Iyokan_L1.Converter
                     res.Add(cell);
                 }
             }
+
             return res;
         }
 
@@ -166,9 +171,10 @@ namespace Iyokan_L1.Converter
                 cell.Serialize();
                 Console.WriteLine(cell);
             }
-            
+
             netList.ports.RemoveAll(p => p.cellBits.Count == 0);
         }
+
         private YosysNetList Deserialize()
         {
             var yosysJson = File.ReadAllText(jsonPath);
