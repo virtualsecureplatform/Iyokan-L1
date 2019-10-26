@@ -40,6 +40,7 @@ namespace Iyokan_L1.Models
         public override void Serialize()
         {
             input.D = input.cellD.id;
+            output.Q.RemoveAll(p => true);
             foreach (var cell in output.cellQ)
             {
                 output.Q.Add(cell.id);

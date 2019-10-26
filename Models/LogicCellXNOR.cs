@@ -43,6 +43,7 @@ namespace Iyokan_L1.Models
         {
             input.A = input.cellA.id;
             input.B = input.cellB.id;
+            output.Y.RemoveAll(p => true);
             foreach (var cell in output.cellY)
             {
                 output.Y.Add(cell.id);
