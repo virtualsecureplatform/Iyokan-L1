@@ -14,16 +14,18 @@
 module YosysTest( // @[:@3.2]
   input        clock, // @[:@4.4]
   input        reset, // @[:@5.4]
-  input  [3:0] io_in, // @[:@6.4]
-  output [3:0] io_out // @[:@6.4]
+  output [3:0] io_out, // @[:@6.4]
+  input        io_enable // @[:@6.4]
 );
-  reg [3:0] reg$; // @[YosysTest.scala 10:16:@8.4]
+  reg [3:0] reg$; // @[YosysTest.scala 9:20:@8.4]
   reg [31:0] _RAND_0;
-  wire [4:0] _T_6; // @[YosysTest.scala 12:17:@10.4]
-  wire [3:0] _T_7; // @[YosysTest.scala 12:17:@11.4]
-  assign _T_6 = reg$ + 4'h1; // @[YosysTest.scala 12:17:@10.4]
-  assign _T_7 = _T_6[3:0]; // @[YosysTest.scala 12:17:@11.4]
-  assign io_out = _T_7;
+  wire [4:0] _T_7; // @[YosysTest.scala 12:15:@10.6]
+  wire [3:0] _T_8; // @[YosysTest.scala 12:15:@11.6]
+  wire [3:0] _GEN_0; // @[YosysTest.scala 11:18:@9.4]
+  assign _T_7 = reg$ + 4'h1; // @[YosysTest.scala 12:15:@10.6]
+  assign _T_8 = _T_7[3:0]; // @[YosysTest.scala 12:15:@11.6]
+  assign _GEN_0 = io_enable ? _T_8 : reg$; // @[YosysTest.scala 11:18:@9.4]
+  assign io_out = reg$;
 `ifdef RANDOMIZE
   integer initvar;
   initial begin
@@ -37,6 +39,12 @@ module YosysTest( // @[:@3.2]
   end
 `endif // RANDOMIZE
   always @(posedge clock) begin
-    reg$ <= io_in;
+    if (reset) begin
+      reg$ <= 4'h0;
+    end else begin
+      if (io_enable) begin
+        reg$ <= _T_8;
+      end
+    end
   end
 endmodule

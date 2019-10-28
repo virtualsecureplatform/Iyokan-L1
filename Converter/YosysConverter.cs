@@ -29,7 +29,11 @@ namespace Iyokan_L1.Converter
 
             foreach (var yosysPort in yosysPorts)
             {
-                if (yosysPort.Key == "reset" || yosysPort.Key == "clock")
+                if (yosysPort.Key == "clock")
+                {
+                    continue;
+                }
+                if (yosysPort.Key == "reset" && yosysPort.Value.bits.Count == 0)
                 {
                     continue;
                 }
@@ -101,14 +105,24 @@ namespace Iyokan_L1.Converter
                     return new LogicCellNOT(cell.Value);
                 case "$_AND_":
                     return new LogicCellAND(cell.Value);
+                case "$_ANDNOT_":
+                    return new LogicCellANDNOT(cell.Value);
                 case "$_NAND_":
                     return new LogicCellNAND(cell.Value);
+                case "$_OR_":
+                    return new LogicCellOR(cell.Value);
                 case "$_XOR_":
                     return new LogicCellXOR(cell.Value);
                 case "$_XNOR_":
                     return new LogicCellXNOR(cell.Value);
+                case "$_NOR_":
+                    return new LogicCellNOR(cell.Value);
+                case "$_ORNOT_":
+                    return new LogicCellORNOT(cell.Value);
                 case "$_DFF_P_":
                     return new LogicCellDFFP(cell.Value);
+                case "$_MUX_":
+                    return new LogicCellMUX(cell.Value);
                 default:
                     throw new Exception($"Invalid type token: {type}");
             }

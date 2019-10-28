@@ -1,9 +1,9 @@
 
 # read design 
-read_verilog YosysTest.v
+read_verilog ExUnit.v
 
 # elaborate design hierarchy
-hierarchy -check -top YosysTest
+hierarchy -check -top ExUnit
 
 # the high-level stuff
 proc; opt; fsm; opt; memory; opt

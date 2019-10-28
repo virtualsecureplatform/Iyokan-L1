@@ -19,7 +19,11 @@ namespace Iyokan_L1
             */
             YosysConverter converter = new YosysConverter("/home/naoki/Iyokan-L1/test/circuit.json");
             var res = converter.Convert();
-            Console.WriteLine(res);
+            FileStream fs = new FileStream("/home/naoki/Iyokan-L2/test.json", FileMode.Create);
+            StreamWriter sw = new StreamWriter(fs);
+            sw.WriteLine(res);
+            sw.Close();
+            fs.Close();
         }
     }
 }
