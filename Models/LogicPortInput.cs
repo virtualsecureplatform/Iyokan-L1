@@ -9,13 +9,15 @@ namespace Iyokan_L1.Models
 {
     public class LogicPortInput : LogicPort
     {
-        public LogicPortInput(string name, int yosysBit)
+        public LogicPortInput(string name, int yosysBit, string portName, int portBit)
         {
             this.name = name;
             type = "input";
             cellBits = new List<Logic>();
             bits = new List<int>();
             this.yosysBit = yosysBit;
+            this.portName = portName;
+            this.portBit = portBit;
         }
 
         public override void ResolveNetList(YosysConverter converter)

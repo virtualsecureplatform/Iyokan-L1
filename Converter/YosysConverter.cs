@@ -65,13 +65,13 @@ namespace Iyokan_L1.Converter
                 case "input":
                     if (bitWidth == 1)
                     {
-                        ports.Add(new LogicPortInput(port.Key, bits[0]));
+                        ports.Add(new LogicPortInput(port.Key, bits[0], port.Key, 0));
                     }
                     else
                     {
                         for (int i = 0; i < bitWidth; i++)
                         {
-                            ports.Add(new LogicPortInput($"{port.Key}[{i}]", bits[i]));
+                            ports.Add(new LogicPortInput($"{port.Key}[{i}]", bits[i], port.Key, i));
                         }
                     }
 
@@ -79,13 +79,13 @@ namespace Iyokan_L1.Converter
                 case "output":
                     if (bitWidth == 1)
                     {
-                        ports.Add(new LogicPortOutput(port.Key, bits[0]));
+                        ports.Add(new LogicPortOutput(port.Key, bits[0], port.Key, 0));
                     }
                     else
                     {
                         for (int i = 0; i < bitWidth; i++)
                         {
-                            ports.Add(new LogicPortOutput($"{port.Key}[{i}]", bits[i]));
+                            ports.Add(new LogicPortOutput($"{port.Key}[{i}]", bits[i], port.Key, i));
                         }
                     }
 
@@ -188,7 +188,7 @@ namespace Iyokan_L1.Converter
                 Console.WriteLine(cell);
             }
 
-            netList.ports.RemoveAll(p => p.cellBits.Count == 0);
+            netList.ports.RemoveAll(p => p.cellBits.Count == 0 && p.type != "output");
         }
 
         private YosysNetList Deserialize()

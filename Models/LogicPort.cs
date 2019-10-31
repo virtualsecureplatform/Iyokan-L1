@@ -14,6 +14,10 @@ namespace Iyokan_L1.Models
 
         public List<int> bits;
 
+        public string portName { get; set; }
+
+        public int portBit { get; set; }
+
         public bool ContainOutputNet(int netID)
         {
             if (type != "output")
