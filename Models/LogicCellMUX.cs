@@ -32,6 +32,7 @@ namespace Iyokan_L1.Models
         public Input input { get; }
         public Output output { get; }
 
+        public int romAddrBit { get; }
         public LogicCellMUX(YosysCell yosysCell)
         {
             AttachYosysCell(yosysCell);
@@ -42,6 +43,39 @@ namespace Iyokan_L1.Models
             output.Y = new List<int>();
         }
 
+        public LogicCellMUX(LogicCellROM in0, LogicCellROM in1, int addrBit)
+        {
+            type = "MUX";
+            input = new Input();
+            output = new Output();
+            output.cellY = new List<Logic>();
+            output.Y = new List<int>();
+            romAddrBit = addrBit;
+            input.cellA = in0;
+            input.cellB = in1;
+            in0.AttachOutput(this);
+            in1.AttachOutput(this);
+        }
+
+        public LogicCellMUX(LogicCellMUX in0, LogicCellMUX in1, int addrBit)
+        {
+            type = "MUX";
+            input = new Input();
+            output = new Output();
+            output.cellY = new List<Logic>();
+            output.Y = new List<int>();
+            romAddrBit = addrBit;
+            input.cellA = in0;
+            input.cellB = in1;
+            in0.AttachOutput(this);
+            in1.AttachOutput(this);
+        }
+        
+        public void AttachOutput(LogicCellMUX mux)
+        {
+            output.cellY.Add(mux);
+        }
+        
         public override void Serialize()
         {
             input.A = input.cellA.id;
@@ -106,6 +140,40 @@ namespace Iyokan_L1.Models
             {
                 output.cellY.AddRange(converter.FindIncomingNetContainsLogic(bit));
             }
+        }
+        public override void RemoveAttachOutputLogic(Logic removeLogic, Logic attachLogic)
+        {
+            output.cellY.Remove(removeLogic);
+            output.cellY.Add(attachLogic);
+        }
+        public override void RemoveAttachInputLogic(Logic removeLogic, Logic attachLogic)
+        {
+            if (input.cellA == removeLogic)
+            {
+                input.cellA = attachLogic;
+            }
+            if (input.cellB == removeLogic)
+            {
+                input.cellB = attachLogic;
+            }
+            if (input.cellS == removeLogic)
+            {
+                input.cellS = attachLogic;
+            }
+        }
+        
+        public override List<Logic> GetOutput()
+        {
+            return output.cellY;
+        }
+        
+        public override List<Logic> GetInput()
+        {
+            var res = new List<Logic>();
+            res.Add(input.cellA);
+            res.Add(input.cellB);
+            res.Add(input.cellS);
+            return res;
         }
     }
 }

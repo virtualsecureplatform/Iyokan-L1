@@ -8,13 +8,10 @@ using Iyokan_L1.Utils;
 
 namespace Iyokan_L1.Models
 {
-    public class LogicCellDFFP : LogicCell
+    public class LogicCellROM : LogicCell
     {
         public class Input
         {
-            [JsonIgnore] public Logic cellD { get; set; }
-
-            public int D { get; set; }
         }
 
         public class Output
@@ -27,19 +24,28 @@ namespace Iyokan_L1.Models
         public Input input { get; }
         public Output output { get; }
 
-        public LogicCellDFFP(YosysCell yosysCell)
+        public int romAddress { get; }
+        
+        public int romBit { get; }
+        
+        public LogicCellROM(int bit, int address)
         {
-            AttachYosysCell(yosysCell);
-            type = "DFFP";
+            type = "ROM";
             input = new Input();
             output = new Output();
             output.cellQ = new List<Logic>();
             output.Q = new List<int>();
+            romBit = bit;
+            romAddress = address;
+        }
+
+        public void AttachOutput(LogicCellMUX mux)
+        {
+            output.cellQ.Add(mux);
         }
 
         public override void Serialize()
         {
-            input.D = input.cellD.id;
             output.Q.RemoveAll(p => true);
             foreach (var cell in output.cellQ)
             {
@@ -50,7 +56,7 @@ namespace Iyokan_L1.Models
         public override string ToString()
         {
             return
-                $"[Cell] id:{this.id} type:{this.type} inputD:{this.input.D} outputQ:{this.output.Q.ToString<int>()}";
+                $"[Cell] id:{this.id} type:{this.type} outputQ:{this.output.Q.ToString<int>()}";
         }
 
         public override void ResolveNetList(YosysConverter converter)
@@ -66,13 +72,6 @@ namespace Iyokan_L1.Models
             {
                 throw new Exception("Invalid netList");
             }
-
-            input.cellD = cellDConnection[0];
-            var cellQyosysBits = yosysConnections["Q"];
-            foreach (var bit in cellQyosysBits)
-            {
-                output.cellQ.AddRange(converter.FindIncomingNetContainsLogic(bit));
-            }
         }
         public override void RemoveAttachOutputLogic(Logic removeLogic, Logic attachLogic)
         {
@@ -81,22 +80,14 @@ namespace Iyokan_L1.Models
         }
         public override void RemoveAttachInputLogic(Logic removeLogic, Logic attachLogic)
         {
-            if (input.cellD == removeLogic)
-            {
-                input.cellD = attachLogic;
-            }
         }
-        
         public override List<Logic> GetOutput()
         {
             return output.cellQ;
         }
-        
         public override List<Logic> GetInput()
         {
-            var res = new List<Logic>();
-            res.Add(input.cellD);
-            return res;
+            throw new Exception("Invalid Operation: GetInput");
         }
     }
 }

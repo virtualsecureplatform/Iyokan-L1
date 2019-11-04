@@ -91,5 +91,34 @@ namespace Iyokan_L1.Models
                 output.cellY.AddRange(converter.FindIncomingNetContainsLogic(bit));
             }
         }
+        public override void RemoveAttachOutputLogic(Logic removeLogic, Logic attachLogic)
+        {
+            output.cellY.Remove(removeLogic);
+            output.cellY.Add(attachLogic);
+        }
+        public override void RemoveAttachInputLogic(Logic removeLogic, Logic attachLogic)
+        {
+            if (input.cellA == removeLogic)
+            {
+                input.cellA = attachLogic;
+            }
+            if (input.cellB == removeLogic)
+            {
+                input.cellB = attachLogic;
+            }
+        }
+        
+        public override List<Logic> GetOutput()
+        {
+            return output.cellY;
+        }
+        
+        public override List<Logic> GetInput()
+        {
+            var res = new List<Logic>();
+            res.Add(input.cellA);
+            res.Add(input.cellB);
+            return res;
+        }
     }
 }
