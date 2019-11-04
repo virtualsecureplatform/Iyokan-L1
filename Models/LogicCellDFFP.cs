@@ -92,6 +92,14 @@ namespace Iyokan_L1.Models
             return output.cellQ;
         }
         
+        public override void UpdatePriority(int pri)
+        {
+            if (pri > priority)
+            {
+                priority = pri;
+            }
+        }
+
         public override List<Logic> GetInput()
         {
             var res = new List<Logic>();

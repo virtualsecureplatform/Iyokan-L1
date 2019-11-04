@@ -72,6 +72,56 @@ namespace Iyokan_L1.Models
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
 
+        [JsonIgnore]
+        private Dictionary<int,int> pris = new Dictionary<int, int>();
+        public void UpdatePriority()
+        {
+            foreach (var port in ports)
+            {
+                if (port is LogicPortOutput)
+                {
+                    port.UpdatePriority(0);
+                }
+            }
+
+            foreach (var cell in cells)
+            {
+                if (cell is LogicCellDFFP dff)
+                {
+                    dff.input.cellD.UpdatePriority(0);
+                }
+            }
+
+            foreach (var port in ports)
+            {
+                if (!pris.ContainsKey(port.priority))
+                {
+                    pris[port.priority] = 0;
+                }
+                else
+                {
+                    pris[port.priority]++;
+                }
+            }
+
+            foreach (var cell in cells)
+            {
+                if (!pris.ContainsKey(cell.priority))
+                {
+                    pris[cell.priority] = 0;
+                }
+                else
+                {
+                    pris[cell.priority]++;
+                }
+            }
+
+            var priOrder = pris.OrderBy((x) => x.Key);
+            foreach (var priNum in priOrder)
+            {
+                Console.WriteLine($"Priority {priNum.Key} : {priNum.Value}");
+            }
+        }
         public void Validation()
         {
             foreach (var cell in cells)

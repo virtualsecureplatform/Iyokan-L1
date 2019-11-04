@@ -107,6 +107,16 @@ namespace Iyokan_L1.Models
                 input.cellB = attachLogic;
             }
         }
+        public override void UpdatePriority(int pri)
+        {
+            if (pri > priority)
+            {
+                priority = pri;
+            }
+            input.cellA.UpdatePriority(priority+1);
+            input.cellB.UpdatePriority(priority+1);
+        }
+
         public override List<Logic> GetOutput()
         {
             return output.cellY;

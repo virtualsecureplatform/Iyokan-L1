@@ -42,6 +42,15 @@ namespace Iyokan_L1.Models
             cellBits.Remove(removeLogic);
             cellBits.Add(attachLogic);
         }
+        public override void UpdatePriority(int pri)
+        {
+            if (pri > priority)
+            {
+                priority = pri;
+            }
+            cellBits[0].UpdatePriority(priority+1);
+        }
+
         public override List<Logic> GetOutput()
         {
             throw new Exception("Invalid Operation: GetOutput");

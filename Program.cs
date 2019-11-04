@@ -21,10 +21,11 @@ namespace Iyokan_L1
             integrator.Combine("io_romAddr", "RomAddr");
             integrator.Combine("RomData", "io_romData");
             var netList = integrator.Integrate();
+            netList.UpdatePriority();
             var res = netList.Serialize();
             netList.Validation();
             //Console.WriteLine(res);
-            FileStream fs = new FileStream("/home/naoki/Iyokan-L2/test.json", FileMode.Create);
+            FileStream fs = new FileStream("/home/naoki/Iyokan-L2/test-pri.json", FileMode.Create);
             StreamWriter sw = new StreamWriter(fs);
             sw.WriteLine(res);
             sw.Close();

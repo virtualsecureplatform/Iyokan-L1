@@ -48,6 +48,14 @@ namespace Iyokan_L1.Models
         {
             throw new Exception("Invalid RemoveAttachInputLogic");
         }
+        public override void UpdatePriority(int pri)
+        {
+            if (pri > priority)
+            {
+                priority = pri;
+            }
+        }
+
         public override List<Logic> GetOutput()
         {
             return cellBits;
