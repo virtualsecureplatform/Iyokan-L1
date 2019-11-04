@@ -33,10 +33,12 @@ namespace Iyokan_L1.Converter
                 {
                     continue;
                 }
+
                 if (yosysPort.Key == "reset" && yosysPort.Value.bits.Count == 0)
                 {
                     continue;
                 }
+
                 var port = ConvertYosysPort(yosysPort);
                 foreach (var item in port)
                 {
@@ -53,7 +55,7 @@ namespace Iyokan_L1.Converter
             NetListResolver();
             return netList.Serialize();
         }
-        
+
         private List<LogicPort> ConvertYosysPort(KeyValuePair<string, YosysPort> port)
         {
             var direction = port.Value.direction;

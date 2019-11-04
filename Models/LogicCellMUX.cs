@@ -14,7 +14,7 @@ namespace Iyokan_L1.Models
         {
             [JsonIgnore] public Logic cellA { get; set; }
             [JsonIgnore] public Logic cellB { get; set; }
-            
+
             [JsonIgnore] public Logic cellS { get; set; }
 
             public int A { get; set; }
@@ -33,6 +33,7 @@ namespace Iyokan_L1.Models
         public Output output { get; }
 
         public int romAddrBit { get; }
+
         public LogicCellMUX(YosysCell yosysCell)
         {
             AttachYosysCell(yosysCell);
@@ -70,12 +71,12 @@ namespace Iyokan_L1.Models
             in0.AttachOutput(this);
             in1.AttachOutput(this);
         }
-        
+
         public void AttachOutput(LogicCellMUX mux)
         {
             output.cellY.Add(mux);
         }
-        
+
         public override void Serialize()
         {
             input.A = input.cellA.id;
@@ -110,13 +111,14 @@ namespace Iyokan_L1.Models
             {
                 throw new Exception("Invalid netList");
             }
-            
+
             int cellAyosysBit = yosysConnections["A"][0];
             List<Logic> cellAConnection = converter.FindOutgoingNetContainsLogic(cellAyosysBit);
             if (cellAConnection.Count != 1)
             {
                 throw new Exception("Invalid netList");
             }
+
             input.cellA = cellAConnection[0];
 
             int cellByosysBit = yosysConnections["B"][0];
@@ -125,57 +127,64 @@ namespace Iyokan_L1.Models
             {
                 throw new Exception("Invalid netList");
             }
+
             input.cellB = cellBConnection[0];
-            
+
             int cellSyosysBit = yosysConnections["S"][0];
             List<Logic> cellSConnection = converter.FindOutgoingNetContainsLogic(cellSyosysBit);
             if (cellSConnection.Count != 1)
             {
                 throw new Exception("Invalid netList");
             }
+
             input.cellS = cellSConnection[0];
-            
+
             var cellYyosysBits = yosysConnections["Y"];
             foreach (var bit in cellYyosysBits)
             {
                 output.cellY.AddRange(converter.FindIncomingNetContainsLogic(bit));
             }
         }
+
         public override void RemoveAttachOutputLogic(Logic removeLogic, Logic attachLogic)
         {
             output.cellY.Remove(removeLogic);
             output.cellY.Add(attachLogic);
         }
+
         public override void RemoveAttachInputLogic(Logic removeLogic, Logic attachLogic)
         {
             if (input.cellA == removeLogic)
             {
                 input.cellA = attachLogic;
             }
+
             if (input.cellB == removeLogic)
             {
                 input.cellB = attachLogic;
             }
+
             if (input.cellS == removeLogic)
             {
                 input.cellS = attachLogic;
             }
         }
-        
+
         public override List<Logic> GetOutput()
         {
             return output.cellY;
         }
-        
+
         public override void UpdatePriority(int pri)
         {
             if (pri > priority)
             {
                 priority = pri;
             }
-            input.cellA.UpdatePriority(priority+1);
-            input.cellB.UpdatePriority(priority+1);
-            input.cellS.UpdatePriority(priority+1);
+
+            input.cellA.UpdatePriority(priority + 1);
+            input.cellB.UpdatePriority(priority + 1);
+            input.cellS.UpdatePriority(priority + 1);
         }
 
         public override List<Logic> GetInput()

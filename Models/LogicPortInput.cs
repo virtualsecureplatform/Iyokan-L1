@@ -34,20 +34,23 @@ namespace Iyokan_L1.Models
                 Console.WriteLine($"Port {name} is not used");
             }
         }
-        
+
         public override string ToString()
         {
             return $"[Port] name:{this.name} id:{this.id} type:{this.type} to:{bits.ToString<int>()}";
         }
+
         public override void RemoveAttachOutputLogic(Logic removeLogic, Logic attachLogic)
         {
             cellBits.Remove(removeLogic);
             cellBits.Add(attachLogic);
         }
+
         public override void RemoveAttachInputLogic(Logic removeLogic, Logic attachLogic)
         {
             throw new Exception("Invalid RemoveAttachInputLogic");
         }
+
         public override void UpdatePriority(int pri)
         {
             if (pri > priority)
@@ -60,6 +63,7 @@ namespace Iyokan_L1.Models
         {
             return cellBits;
         }
+
         public override List<Logic> GetInput()
         {
             throw new Exception("Invalid Operation: GetInput");

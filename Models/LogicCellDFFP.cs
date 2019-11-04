@@ -74,11 +74,13 @@ namespace Iyokan_L1.Models
                 output.cellQ.AddRange(converter.FindIncomingNetContainsLogic(bit));
             }
         }
+
         public override void RemoveAttachOutputLogic(Logic removeLogic, Logic attachLogic)
         {
             output.cellQ.Remove(removeLogic);
             output.cellQ.Add(attachLogic);
         }
+
         public override void RemoveAttachInputLogic(Logic removeLogic, Logic attachLogic)
         {
             if (input.cellD == removeLogic)
@@ -86,12 +88,12 @@ namespace Iyokan_L1.Models
                 input.cellD = attachLogic;
             }
         }
-        
+
         public override List<Logic> GetOutput()
         {
             return output.cellQ;
         }
-        
+
         public override void UpdatePriority(int pri)
         {
             if (pri > priority)

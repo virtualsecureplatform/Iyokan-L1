@@ -11,29 +11,28 @@ namespace Iyokan_L1.Converter
     {
         public RomBuilder()
         {
-            
         }
 
         public LogicNetList Build(int wordWidth, int wordNum)
         {
             LogicNetList netList = new LogicNetList();
-            var (romCell,romPort) = BuildTwoWordCell(0, wordWidth);
+            var (romCell, romPort) = BuildTwoWordCell(0, wordWidth);
             for (int i = 0; i < wordWidth; i++)
             {
                 var output = new LogicPortOutput("RomData", i, "RomData", i);
                 ((LogicCellMUX) romCell[wordWidth * 2 + i]).output.cellY.Add(output);
-                output.cellBits.Add(romCell[wordWidth*2+i]);
+                output.cellBits.Add(romCell[wordWidth * 2 + i]);
                 romPort.Add(output);
             }
 
             foreach (var port in romPort)
             {
-               netList.Add(port); 
+                netList.Add(port);
             }
-            
+
             foreach (var cell in romCell)
             {
-               netList.Add(cell); 
+                netList.Add(cell);
             }
 
             Console.WriteLine(netList.Serialize());
@@ -51,22 +50,24 @@ namespace Iyokan_L1.Converter
                 romCell.AddRange(BuildRomCell(addr + 1, width));
                 for (int i = 0; i < width; i++)
                 {
-                    var mux = new LogicCellMUX((LogicCellROM)romCell[i], (LogicCellROM)romCell[width+i], addrInput.portBit);
+                    var mux = new LogicCellMUX((LogicCellROM) romCell[i], (LogicCellROM) romCell[width + i],
+                        addrInput.portBit);
                     romCell.Add(mux);
                     outMUX.Add(mux);
                 }
+
                 for (int i = 0; i < width; i++)
                 {
                     ((LogicCellMUX) romCell[width * 2 + i]).input.cellS = addrInput;
-                    addrInput.cellBits.Add(romCell[width*2+i]);
+                    addrInput.cellBits.Add(romCell[width * 2 + i]);
                 }
             }
         }
 
         public class MuxBlock
         {
-            public List<LogicCell> romCell { get; }= new List<LogicCell>();
-            public List<LogicCellMUX> outMUX { get; }= new List<LogicCellMUX>();
+            public List<LogicCell> romCell { get; } = new List<LogicCell>();
+            public List<LogicCellMUX> outMUX { get; } = new List<LogicCellMUX>();
 
             public MuxBlock(TwoWordRom rom1, TwoWordRom rom2, LogicPortInput addrInput)
             {
@@ -123,50 +124,53 @@ namespace Iyokan_L1.Converter
             List<TwoWordRom> roms1 = new List<TwoWordRom>();
             for (int i = 0; i < 64; i++)
             {
-               roms1.Add(new TwoWordRom(i*2, width, addr[0])); 
+                roms1.Add(new TwoWordRom(i * 2, width, addr[0]));
             }
-            
+
             List<MuxBlock> roms2 = new List<MuxBlock>();
             for (int i = 0; i < 32; i++)
             {
-                roms2.Add(new MuxBlock(roms1[i*2], roms1[i*2+1], addr[1]));
+                roms2.Add(new MuxBlock(roms1[i * 2], roms1[i * 2 + 1], addr[1]));
             }
-            
+
             List<MuxBlock> roms3 = new List<MuxBlock>();
             for (int i = 0; i < 16; i++)
             {
-                roms3.Add(new MuxBlock(roms2[i*2], roms2[i*2+1], addr[2]));
+                roms3.Add(new MuxBlock(roms2[i * 2], roms2[i * 2 + 1], addr[2]));
             }
-            
+
             List<MuxBlock> roms4 = new List<MuxBlock>();
             for (int i = 0; i < 8; i++)
             {
-                roms4.Add(new MuxBlock(roms3[i*2], roms3[i*2+1], addr[3]));
+                roms4.Add(new MuxBlock(roms3[i * 2], roms3[i * 2 + 1], addr[3]));
             }
-            
+
             List<MuxBlock> roms5 = new List<MuxBlock>();
             for (int i = 0; i < 4; i++)
             {
-                roms5.Add(new MuxBlock(roms4[i*2], roms4[i*2+1], addr[4]));
+                roms5.Add(new MuxBlock(roms4[i * 2], roms4[i * 2 + 1], addr[4]));
             }
-            
+
             List<MuxBlock> roms6 = new List<MuxBlock>();
             for (int i = 0; i < 2; i++)
             {
-                roms6.Add(new MuxBlock(roms5[i*2], roms5[i*2+1], addr[5]));
+                roms6.Add(new MuxBlock(roms5[i * 2], roms5[i * 2 + 1], addr[5]));
             }
+
             MuxBlock rom = new MuxBlock(roms6[0], roms6[1], addr[6]);
             for (int i = 0; i < width; i++)
             {
-               LogicPortOutput outport = new LogicPortOutput($"RomData[{i}]", i, "RomData", i);
-               outport.cellBits.Add(rom.outMUX[i]);
-               rom.outMUX[i].output.cellY.Add(outport);
-               netList.Add(outport);
+                LogicPortOutput outport = new LogicPortOutput($"RomData[{i}]", i, "RomData", i);
+                outport.cellBits.Add(rom.outMUX[i]);
+                rom.outMUX[i].output.cellY.Add(outport);
+                netList.Add(outport);
             }
+
             foreach (var cell in rom.romCell)
             {
                 netList.Add(cell);
             }
+
             return netList;
         }
 
@@ -183,15 +187,17 @@ namespace Iyokan_L1.Converter
             netList.Add(addr1);
             for (int i = 0; i < width; i++)
             {
-               LogicPortOutput outport = new LogicPortOutput($"RomData[{i}]", i, "RomData", i);
-               outport.cellBits.Add(rom.outMUX[i]);
-               rom.outMUX[i].output.cellY.Add(outport);
-               netList.Add(outport);
+                LogicPortOutput outport = new LogicPortOutput($"RomData[{i}]", i, "RomData", i);
+                outport.cellBits.Add(rom.outMUX[i]);
+                rom.outMUX[i].output.cellY.Add(outport);
+                netList.Add(outport);
             }
+
             foreach (var cell in rom.romCell)
             {
                 netList.Add(cell);
             }
+
             return netList;
         }
 
@@ -200,39 +206,43 @@ namespace Iyokan_L1.Converter
             LogicNetList netList = new LogicNetList();
             LogicPortInput addr0 = new LogicPortInput($"RomAddr[{0}]", 0, "RomAddr", 0);
             TwoWordRom rom = new TwoWordRom(0, width, addr0);
-            
+
             if (width != rom.outMUX.Count)
             {
                 throw new Exception("Unmatched DataPort width");
             }
-            
+
             for (int i = 0; i < width; i++)
             {
-               LogicPortOutput outport = new LogicPortOutput($"RomData[{i}]", i, "RomData", i);
-               outport.cellBits.Add(rom.outMUX[i]);
-               rom.outMUX[i].output.cellY.Add(outport);
-               netList.Add(outport);
+                LogicPortOutput outport = new LogicPortOutput($"RomData[{i}]", i, "RomData", i);
+                outport.cellBits.Add(rom.outMUX[i]);
+                rom.outMUX[i].output.cellY.Add(outport);
+                netList.Add(outport);
             }
+
             netList.Add(addr0);
             foreach (var cell in rom.romCell)
             {
                 netList.Add(cell);
             }
+
             return netList;
         }
-        private (List<LogicCell>,List<LogicPort>) BuildTwoWordCell(int addr, int width)
+
+        private (List<LogicCell>, List<LogicPort>) BuildTwoWordCell(int addr, int width)
         {
             List<LogicCell> romCell = BuildRomCell(addr, width);
             romCell.AddRange(BuildRomCell(addr + 1, width));
             for (int i = 0; i < width; i++)
             {
-                romCell.Add(new LogicCellMUX((LogicCellROM)romCell[i], (LogicCellROM)romCell[width+i], 0));
+                romCell.Add(new LogicCellMUX((LogicCellROM) romCell[i], (LogicCellROM) romCell[width + i], 0));
             }
+
             var addrInput = new LogicPortInput("RomAddr", 0, "RomAddr", 0);
             for (int i = 0; i < width; i++)
             {
                 ((LogicCellMUX) romCell[width * 2 + i]).input.cellS = addrInput;
-                addrInput.cellBits.Add(romCell[width*2+i]);
+                addrInput.cellBits.Add(romCell[width * 2 + i]);
             }
 
             var romPort = new List<LogicPort>();

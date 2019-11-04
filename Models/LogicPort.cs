@@ -17,7 +17,7 @@ namespace Iyokan_L1.Models
         public string portName { get; set; }
 
         public int portBit { get; set; }
-        
+
         [JsonIgnore] public LogicNetList parentNetList { get; set; }
 
         public bool ContainOutputNet(int netID)

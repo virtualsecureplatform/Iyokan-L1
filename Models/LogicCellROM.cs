@@ -25,9 +25,9 @@ namespace Iyokan_L1.Models
         public Output output { get; }
 
         public int romAddress { get; }
-        
+
         public int romBit { get; }
-        
+
         public LogicCellROM(int bit, int address)
         {
             type = "ROM";
@@ -73,14 +73,17 @@ namespace Iyokan_L1.Models
                 throw new Exception("Invalid netList");
             }
         }
+
         public override void RemoveAttachOutputLogic(Logic removeLogic, Logic attachLogic)
         {
             output.cellQ.Remove(removeLogic);
             output.cellQ.Add(attachLogic);
         }
+
         public override void RemoveAttachInputLogic(Logic removeLogic, Logic attachLogic)
         {
         }
+
         public override void UpdatePriority(int pri)
         {
             if (pri > priority)
@@ -93,6 +96,7 @@ namespace Iyokan_L1.Models
         {
             return output.cellQ;
         }
+
         public override List<Logic> GetInput()
         {
             throw new Exception("Invalid Operation: GetInput");

@@ -91,36 +91,42 @@ namespace Iyokan_L1.Models
                 output.cellY.AddRange(converter.FindIncomingNetContainsLogic(bit));
             }
         }
+
         public override void RemoveAttachOutputLogic(Logic removeLogic, Logic attachLogic)
         {
             output.cellY.Remove(removeLogic);
             output.cellY.Add(attachLogic);
         }
+
         public override void RemoveAttachInputLogic(Logic removeLogic, Logic attachLogic)
         {
             if (input.cellA == removeLogic)
             {
                 input.cellA = attachLogic;
             }
+
             if (input.cellB == removeLogic)
             {
                 input.cellB = attachLogic;
             }
         }
+
         public override void UpdatePriority(int pri)
         {
             if (pri > priority)
             {
                 priority = pri;
             }
-            input.cellA.UpdatePriority(priority+1);
-            input.cellB.UpdatePriority(priority+1);
+
+            input.cellA.UpdatePriority(priority + 1);
+            input.cellB.UpdatePriority(priority + 1);
         }
 
         public override List<Logic> GetOutput()
         {
             return output.cellY;
         }
+
         public override List<Logic> GetInput()
         {
             var res = new List<Logic>();

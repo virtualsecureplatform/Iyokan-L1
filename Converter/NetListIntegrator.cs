@@ -8,11 +8,11 @@ namespace Iyokan_L1.Converter
 {
     public class NetListIntegrator
     {
-        List<LogicNetList> netLists= new List<LogicNetList>();
+        List<LogicNetList> netLists = new List<LogicNetList>();
         private List<string> removePort = new List<string>();
+
         public NetListIntegrator()
         {
-            
         }
 
         public void AddNetList(LogicNetList netList)
@@ -32,7 +32,8 @@ namespace Iyokan_L1.Converter
                     }
                 }
             }
-            throw new Exception("Not Found Output:"+outputPort);
+
+            throw new Exception("Not Found Output:" + outputPort);
         }
 
         public List<Dictionary<int, LogicPortInput>> SearchInputPort(string inputPort)
@@ -44,19 +45,19 @@ namespace Iyokan_L1.Converter
                 {
                     if (input.Key == inputPort)
                     {
-                       res.Add(input.Value); 
+                        res.Add(input.Value);
                     }
                 }
             }
 
             if (res.Count == 0)
             {
-                throw new Exception("Not Found Input:"+inputPort);
+                throw new Exception("Not Found Input:" + inputPort);
             }
 
             return res;
         }
-        
+
         public void Combine(string outputPort, string inputPort)
         {
             removePort.Add(outputPort);
@@ -66,12 +67,12 @@ namespace Iyokan_L1.Converter
 
             if (outPort.Count == 0)
             {
-               throw new Exception("Invalid outputPort:"+outputPort);
+                throw new Exception("Invalid outputPort:" + outputPort);
             }
 
             if (inPort.Count == 0)
             {
-               throw new Exception("Invalid inputPort:"+inputPort);
+                throw new Exception("Invalid inputPort:" + inputPort);
             }
 
             LogicNetList outParentNetList = outPort[0].parentNetList;
@@ -80,7 +81,7 @@ namespace Iyokan_L1.Converter
             {
                 inParentNetList.Add(input[0].parentNetList);
             }
-            
+
             foreach (var output in outPort)
             {
                 LogicPortOutput outport = output.Value;
@@ -89,7 +90,7 @@ namespace Iyokan_L1.Converter
                 {
                     continue;
                 }
-                
+
                 var parentLogic = outport.cellBits[0];
                 foreach (var input in inPort)
                 {
@@ -115,14 +116,14 @@ namespace Iyokan_L1.Converter
             {
                 foreach (var cell in netList.cells)
                 {
-                   res.Add(cell); 
+                    res.Add(cell);
                 }
 
                 foreach (var port in netList.ports)
                 {
                     if (!removePort.Contains(port.portName))
                     {
-                        res.Add(port); 
+                        res.Add(port);
                     }
                 }
             }

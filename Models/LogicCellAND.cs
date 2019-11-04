@@ -104,6 +104,7 @@ namespace Iyokan_L1.Models
             {
                 input.cellA = attachLogic;
             }
+
             if (input.cellB == removeLogic)
             {
                 input.cellB = attachLogic;
@@ -121,8 +122,9 @@ namespace Iyokan_L1.Models
             {
                 priority = pri;
             }
-            input.cellA.UpdatePriority(priority+1);
-            input.cellB.UpdatePriority(priority+1);
+
+            input.cellA.UpdatePriority(priority + 1);
+            input.cellB.UpdatePriority(priority + 1);
         }
 
         public override List<Logic> GetInput()

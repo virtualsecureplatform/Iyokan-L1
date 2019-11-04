@@ -72,8 +72,8 @@ namespace Iyokan_L1.Models
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
 
-        [JsonIgnore]
-        private Dictionary<int,int> pris = new Dictionary<int, int>();
+        [JsonIgnore] private Dictionary<int, int> pris = new Dictionary<int, int>();
+
         public void UpdatePriority()
         {
             foreach (var port in ports)
@@ -122,6 +122,7 @@ namespace Iyokan_L1.Models
                 Console.WriteLine($"Priority {priNum.Key} : {priNum.Value}");
             }
         }
+
         public void Validation()
         {
             foreach (var cell in cells)
@@ -142,6 +143,7 @@ namespace Iyokan_L1.Models
                 {
                     continue;
                 }
+
                 foreach (var child in port.GetOutput())
                 {
                     var childInput = child.GetInput();
