@@ -12,8 +12,9 @@ namespace Iyokan_L1
     {
         static void Main(string[] args)
         {
-            YosysConverter conv1 = new YosysConverter("/home/naoki/Iyokan-L1/test/circuit.json");
+            YosysConverter conv1 = new YosysConverter("/home/naoki/Iyokan-L1/test/circuit-ram.json");
             conv1.Convert();
+            /*
             var romNetList = RomBuilder.Build128WordCell(32);
             var integrator = new NetListIntegrator();
             integrator.AddNetList(conv1.netList);
@@ -24,8 +25,10 @@ namespace Iyokan_L1
             netList.UpdatePriority();
             var res = netList.Serialize();
             netList.Validation();
-            //Console.WriteLine(res);
-            FileStream fs = new FileStream("/home/naoki/Iyokan-L2/test-pri.json", FileMode.Create);
+            */
+            var res = conv1.netList.Serialize();
+            Console.WriteLine(res);
+            FileStream fs = new FileStream("/home/naoki/Iyokan-L2/test-ram.json", FileMode.Create);
             StreamWriter sw = new StreamWriter(fs);
             sw.WriteLine(res);
             sw.Close();

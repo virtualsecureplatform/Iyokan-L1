@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Iyokan_L1.Models;
 using Iyokan_L1.Utils;
 using Newtonsoft.Json;
@@ -26,6 +27,18 @@ namespace Iyokan_L1.Converter
             var yosysModule = yosysNetList.modules.First();
             var yosysPorts = yosysModule.Value.ports;
             var yosysCells = yosysModule.Value.cells;
+            var yosysNets = yosysModule.Value.netnames;
+            var yosysRAM = new Dictionary<int, List<int>>();
+            foreach (var yosysNet in yosysNets)
+            {
+                if (yosysNet.Key.Contains("mem["))
+                {
+                    Console.WriteLine(yosysNet.Key);
+                    string match = Regex.Replace(yosysNet.Key, "[^0-9]", "");
+                    Console.WriteLine(Int32.Parse(match));
+                    yosysRAM[Int32.Parse(match)] = yosysNet.Value.bits;
+                }
+            }
 
             foreach (var yosysPort in yosysPorts)
             {
@@ -48,7 +61,7 @@ namespace Iyokan_L1.Converter
 
             foreach (var yosysCell in yosysCells)
             {
-                var cell = ConvertYosysCell(yosysCell);
+                var cell = ConvertYosysCell(yosysCell, yosysRAM);
                 netList.Add(cell);
             }
 
@@ -97,7 +110,23 @@ namespace Iyokan_L1.Converter
             }
         }
 
-        private LogicCell ConvertYosysCell(KeyValuePair<string, YosysCell> cell)
+        private LogicCellRAM FindCellRAM(YosysCell cell, Dictionary<int, List<int>> ram)
+        {
+            List<int> Qbit = cell.connections["Q"];
+            foreach (var ramCell in ram)
+            {
+                for (int i = 0; i < ramCell.Value.Count; i++)
+                {
+                    if (Qbit.Contains(ramCell.Value[i]))
+                    {
+                        return new LogicCellRAM(cell, ramCell.Key, i);
+                    }
+                }
+            }
+            return null;
+        }
+
+        private LogicCell ConvertYosysCell(KeyValuePair<string, YosysCell> cell, Dictionary<int, List<int>> ram)
         {
             var type = cell.Value.type;
             var connections = cell.Value.connections;
@@ -122,6 +151,11 @@ namespace Iyokan_L1.Converter
                 case "$_ORNOT_":
                     return new LogicCellORNOT(cell.Value);
                 case "$_DFF_P_":
+                    var cellRam = FindCellRAM(cell.Value, ram);
+                    if (cellRam != null)
+                    {
+                        return cellRam;
+                    }
                     return new LogicCellDFFP(cell.Value);
                 case "$_MUX_":
                     return new LogicCellMUX(cell.Value);
