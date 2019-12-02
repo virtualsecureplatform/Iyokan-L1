@@ -21,7 +21,7 @@ namespace Iyokan_L1.Converter
             netList = new LogicNetList();
         }
 
-        public string Convert()
+        public string Convert(bool odd, bool even)
         {
             var yosysNetList = Deserialize();
             var yosysModule = yosysNetList.modules.First();
@@ -31,12 +31,17 @@ namespace Iyokan_L1.Converter
             var yosysRAM = new Dictionary<int, List<int>>();
             foreach (var yosysNet in yosysNets)
             {
-                if (yosysNet.Key.Contains("mem["))
+                if (yosysNet.Key.Contains("memA.mem["))
                 {
                     Console.WriteLine(yosysNet.Key);
                     string match = Regex.Replace(yosysNet.Key, "[^0-9]", "");
-                    Console.WriteLine(Int32.Parse(match));
-                    yosysRAM[Int32.Parse(match)] = yosysNet.Value.bits;
+                    yosysRAM[Int32.Parse(match)*2+1] = yosysNet.Value.bits;
+                }
+                else if (yosysNet.Key.Contains("memB.mem["))
+                {
+                    Console.WriteLine(yosysNet.Key);
+                    string match = Regex.Replace(yosysNet.Key, "[^0-9]", "");
+                    yosysRAM[Int32.Parse(match)*2] = yosysNet.Value.bits;
                 }
             }
 
@@ -61,7 +66,7 @@ namespace Iyokan_L1.Converter
 
             foreach (var yosysCell in yosysCells)
             {
-                var cell = ConvertYosysCell(yosysCell, yosysRAM);
+                var cell = ConvertYosysCell(yosysCell, yosysRAM, odd, even);
                 netList.Add(cell);
             }
 
@@ -110,7 +115,7 @@ namespace Iyokan_L1.Converter
             }
         }
 
-        private LogicCellRAM FindCellRAM(YosysCell cell, Dictionary<int, List<int>> ram)
+        private LogicCellRAM FindCellRAM(YosysCell cell, Dictionary<int, List<int>> ram, bool odd, bool even)
         {
             List<int> Qbit = cell.connections["Q"];
             foreach (var ramCell in ram)
@@ -119,6 +124,14 @@ namespace Iyokan_L1.Converter
                 {
                     if (Qbit.Contains(ramCell.Value[i]))
                     {
+                        if (odd)
+                        {
+                            return new LogicCellRAM(cell, ramCell.Key*2+1, i);
+                        }
+                        if (even)
+                        {
+                            return new LogicCellRAM(cell, ramCell.Key*2, i);
+                        }
                         return new LogicCellRAM(cell, ramCell.Key, i);
                     }
                 }
@@ -126,7 +139,7 @@ namespace Iyokan_L1.Converter
             return null;
         }
 
-        private LogicCell ConvertYosysCell(KeyValuePair<string, YosysCell> cell, Dictionary<int, List<int>> ram)
+        private LogicCell ConvertYosysCell(KeyValuePair<string, YosysCell> cell, Dictionary<int, List<int>> ram, bool odd, bool even)
         {
             var type = cell.Value.type;
             var connections = cell.Value.connections;
@@ -151,7 +164,7 @@ namespace Iyokan_L1.Converter
                 case "$_ORNOT_":
                     return new LogicCellORNOT(cell.Value);
                 case "$_DFF_P_":
-                    var cellRam = FindCellRAM(cell.Value, ram);
+                    var cellRam = FindCellRAM(cell.Value, ram, odd, even);
                     if (cellRam != null)
                     {
                         return cellRam;

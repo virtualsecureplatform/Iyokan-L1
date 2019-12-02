@@ -52,7 +52,10 @@ namespace Iyokan_L1.Models
                 priority = pri;
             }
 
-            cellBits[0].UpdatePriority(priority + 1);
+            if (cellBits.Count() == 1)
+            {
+                cellBits[0].UpdatePriority(priority + 1);
+            }
         }
 
         public override List<Logic> GetOutput()
