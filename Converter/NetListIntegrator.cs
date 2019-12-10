@@ -75,6 +75,13 @@ namespace Iyokan_L1.Converter
                 throw new Exception("Invalid inputPort:" + inputPort);
             }
 
+            /*
+            if (inPort.Count != outPort.Count)
+            {
+                throw new Exception($"Unmatched port width. Inport width:{inPort.Count} Outport width:{outPort.Count}");
+            }
+            */
+
             LogicNetList outParentNetList = outPort[0].parentNetList;
             List<LogicNetList> inParentNetList = new List<LogicNetList>();
             foreach (var input in inPort)
