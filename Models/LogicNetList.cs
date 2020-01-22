@@ -83,15 +83,22 @@ namespace Iyokan_L1.Models
                     port.UpdatePriority(0);
                 }
             }
+            Console.WriteLine("UPDATE PRIORITY LogicPortOutput");
 
             foreach (var cell in cells)
             {
                 if (cell is LogicCellDFFP dff)
                 {
-                    dff.input.cellD.UpdatePriority(0);
+                    if (!(dff.input.cellD is LogicCellDFFP))
+                    {
+                        dff.input.cellD.UpdatePriority(0);
+                        Console.WriteLine($"NEXTNETXTNEXTNEXTNEXTNEXTNEXTNEXT");
+                    }
                 }
+                Console.WriteLine($"cell id:{cell.id}/{cells.Count}");
             }
 
+            //Aggregate Priority Stats
             foreach (var port in ports)
             {
                 if (!pris.ContainsKey(port.priority))

@@ -110,6 +110,65 @@ namespace Iyokan_L1.Converter
             }
         }
 
+        public static LogicNetList Build64WordCell(int width)
+        {
+            List<LogicPortInput> addr = new List<LogicPortInput>();
+            LogicNetList netList = new LogicNetList();
+            for (int i = 0; i < 6; i++)
+            {
+                var addrPort = new LogicPortInput($"RomAddr[{i}]", i, "RomAddr", i);
+                addr.Add(addrPort);
+                netList.Add(addrPort);
+            }
+                
+            List<TwoWordRom> roms1 = new List<TwoWordRom>();
+            for (int i = 0; i < 32; i++)
+            {
+                roms1.Add(new TwoWordRom(i * 2, width, addr[0]));
+            }
+            
+            List<MuxBlock> roms2 = new List<MuxBlock>();
+            for (int i = 0; i < 16; i++)
+            {
+                roms2.Add(new MuxBlock(roms1[i * 2], roms1[i * 2 + 1], addr[1]));
+            }
+            
+            List<MuxBlock> roms3 = new List<MuxBlock>();
+            for (int i = 0; i < 8; i++)
+            {
+                roms3.Add(new MuxBlock(roms2[i * 2], roms2[i * 2 + 1], addr[2]));
+            }
+            
+            List<MuxBlock> roms4 = new List<MuxBlock>();
+            for (int i = 0; i < 4; i++)
+            {
+                roms4.Add(new MuxBlock(roms3[i * 2], roms3[i * 2 + 1], addr[3]));
+            }
+            
+            List<MuxBlock> roms5 = new List<MuxBlock>();
+            for (int i = 0; i < 2; i++)
+            {
+                roms5.Add(new MuxBlock(roms4[i * 2], roms4[i * 2 + 1], addr[4]));
+            }
+            
+            MuxBlock rom = new MuxBlock(roms5[0], roms5[1], addr[5]);
+            
+            for (int i = 0; i < width; i++)
+            {
+                LogicPortOutput outport = new LogicPortOutput($"RomData[{i}]", i, "RomData", i);
+                outport.cellBits.Add(rom.outMUX[i]);
+                rom.outMUX[i].output.cellY.Add(outport);
+                netList.Add(outport);
+            }
+
+            foreach (var cell in rom.romCell)
+            {
+                netList.Add(cell);
+            }
+
+            return netList;
+        }
+        
         public static LogicNetList Build128WordCell(int width)
         {
             List<LogicPortInput> addr = new List<LogicPortInput>();
