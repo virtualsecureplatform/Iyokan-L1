@@ -4,74 +4,26 @@ using Newtonsoft.Json;
 
 namespace Iyokan_L1.Models
 {
-    public abstract class LogicCell : Logic
+    public class LogicCell : Logic
     {
-        [JsonIgnore] public Dictionary<string, List<int>> yosysConnections { get; set; }
-        [JsonIgnore] public Dictionary<string, string> yosysPortDirections { get; set; }
 
+        [JsonIgnore] public Dictionary<string, int> inputCell = new Dictionary<string, int>();
+        [JsonIgnore] public Dictionary<string, List<int>> outputCell = new Dictionary<string, List<int>>();
+        
+        public Dictionary<string, int> input = new Dictionary<string, int>();
+        public Dictionary<string, List<int>> output = new Dictionary<string, List<int>>();
 
-        public void AttachYosysCell(YosysCell yosysCell)
+        public LogicCell(string type)
         {
-            yosysConnections = yosysCell.connections;
-            yosysPortDirections = yosysCell.port_directions;
+            this.type = type;
         }
+        
+        public LogicCell(){}
 
-        private List<string> GetOutputPort()
+        public override string ToString()
         {
-            var port = new List<string>();
-            foreach (var item in yosysPortDirections)
-            {
-                if (item.Value == "output")
-                {
-                    port.Add(item.Key);
-                }
-            }
-
-            return port;
+            return
+                $"[Cell] id:{this.id} type:{this.type} input: output:";
         }
-
-        private List<string> GetInputPort()
-        {
-            var port = new List<string>();
-            foreach (var item in yosysPortDirections)
-            {
-                if (item.Value == "input")
-                {
-                    port.Add(item.Key);
-                }
-            }
-
-            return port;
-        }
-
-        public bool ContainOutputNet(int netID)
-        {
-            var outputPort = GetOutputPort();
-            foreach (var port in outputPort)
-            {
-                if (yosysConnections[port].Contains(netID))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public bool ContainInputNet(int netID)
-        {
-            var inputPort = GetInputPort();
-            foreach (var port in inputPort)
-            {
-                if (yosysConnections[port].Contains(netID))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public override abstract string ToString();
     }
 }

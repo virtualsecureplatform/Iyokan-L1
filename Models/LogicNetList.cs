@@ -10,11 +10,11 @@ namespace Iyokan_L1.Models
         public List<LogicCell> cells { get; }
         public List<LogicPort> ports { get; }
 
-        public Dictionary<string, Dictionary<int, LogicPortInput>> inputs { get; } =
-            new Dictionary<string, Dictionary<int, LogicPortInput>>();
+        public Dictionary<string, Dictionary<int, LogicPort>> inputs { get; } =
+            new Dictionary<string, Dictionary<int, LogicPort>>();
 
-        public Dictionary<string, Dictionary<int, LogicPortOutput>> outputs { get; } =
-            new Dictionary<string, Dictionary<int, LogicPortOutput>>();
+        public Dictionary<string, Dictionary<int, LogicPort>> outputs { get; } =
+            new Dictionary<string, Dictionary<int, LogicPort>>();
 
         public LogicNetList()
         {
@@ -31,44 +31,33 @@ namespace Iyokan_L1.Models
         public void Add(LogicPort port)
         {
             port.id = ports.Count + cells.Count;
-            port.parentNetList = this;
             ports.Add(port);
             if (port.type == "input")
             {
                 if (!inputs.ContainsKey(port.portName))
                 {
-                    inputs[port.portName] = new Dictionary<int, LogicPortInput>();
+                    inputs[port.portName] = new Dictionary<int, LogicPort>();
                 }
 
-                inputs[port.portName][port.portBit] = (LogicPortInput) port;
+                inputs[port.portName][port.portBit] = port;
             }
             else if (port.type == "output")
             {
                 if (!outputs.ContainsKey(port.portName))
                 {
-                    outputs[port.portName] = new Dictionary<int, LogicPortOutput>();
+                    outputs[port.portName] = new Dictionary<int, LogicPort>();
                 }
 
-                outputs[port.portName][port.portBit] = (LogicPortOutput) port;
+                outputs[port.portName][port.portBit] = port;
             }
             else
             {
                 throw new Exception("Invalid port type token:" + port.type);
             }
         }
-
+        
         public string Serialize()
         {
-            foreach (var item in cells)
-            {
-                item.Serialize();
-            }
-
-            foreach (var item in ports)
-            {
-                item.Serialize();
-            }
-
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
 
@@ -76,28 +65,6 @@ namespace Iyokan_L1.Models
 
         public void UpdatePriority()
         {
-            foreach (var port in ports)
-            {
-                if (port is LogicPortOutput)
-                {
-                    port.UpdatePriority(0);
-                }
-            }
-            Console.WriteLine("UPDATE PRIORITY LogicPortOutput");
-
-            foreach (var cell in cells)
-            {
-                if (cell is LogicCellDFFP dff)
-                {
-                    if (!(dff.input.cellD is LogicCellDFFP))
-                    {
-                        dff.input.cellD.UpdatePriority(0);
-                        Console.WriteLine($"NEXTNETXTNEXTNEXTNEXTNEXTNEXTNEXT");
-                    }
-                }
-                Console.WriteLine($"cell id:{cell.id}/{cells.Count}");
-            }
-
             //Aggregate Priority Stats
             foreach (var port in ports)
             {
@@ -127,38 +94,6 @@ namespace Iyokan_L1.Models
             foreach (var priNum in priOrder)
             {
                 Console.WriteLine($"Priority {priNum.Key} : {priNum.Value}");
-            }
-        }
-
-        public void Validation()
-        {
-            foreach (var cell in cells)
-            {
-                foreach (var child in cell.GetOutput())
-                {
-                    var childInput = child.GetInput();
-                    if (!childInput.Contains(cell))
-                    {
-                        throw new Exception("Invalid NetList");
-                    }
-                }
-            }
-
-            foreach (var port in ports)
-            {
-                if (port is LogicPortOutput)
-                {
-                    continue;
-                }
-
-                foreach (var child in port.GetOutput())
-                {
-                    var childInput = child.GetInput();
-                    if (!childInput.Contains(port))
-                    {
-                        throw new Exception("Invalid NetList");
-                    }
-                }
             }
         }
     }

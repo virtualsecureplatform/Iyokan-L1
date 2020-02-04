@@ -14,6 +14,10 @@ namespace Iyokan_L1.Converter
     {
         private string jsonPath;
         public LogicNetList netList { get; }
+        
+        public Dictionary<int, List<Logic>> LogicInputNetList = new Dictionary<int, List<Logic>>();
+        
+        public Dictionary<int, Logic> LogicOutputNetList = new Dictionary<int, Logic>();
 
         public YosysConverter(string jsonPath)
         {
@@ -29,6 +33,7 @@ namespace Iyokan_L1.Converter
             var yosysCells = yosysModule.Value.cells;
             var yosysNets = yosysModule.Value.netnames;
             var yosysRAM = new Dictionary<int, List<int>>();
+            
             foreach (var yosysNet in yosysNets)
             {
                 if (yosysNet.Key.Contains("memA.mem["))
@@ -57,65 +62,148 @@ namespace Iyokan_L1.Converter
                     continue;
                 }
 
-                var port = ConvertYosysPort(yosysPort);
-                foreach (var item in port)
+                for (int i = 0; i < yosysPort.Value.bits.Count; i++)
                 {
-                    netList.Add(item);
+                    var port = ConvertYosysPort(yosysPort.Value.direction, yosysPort.Key, i);
+                    port.bitsCell.Add(yosysPort.Value.bits[i]);
+                    
+                    if (yosysPort.Value.direction == "input")
+                    {
+                        LogicOutputNetList[yosysPort.Value.bits[i]] = port;
+                    }
+                    else if (yosysPort.Value.direction == "output")
+                    {
+                        if (!LogicInputNetList.ContainsKey(yosysPort.Value.bits[i]))
+                        {
+                            LogicInputNetList[yosysPort.Value.bits[i]] = new List<Logic>();
+                        }
+                        LogicInputNetList[yosysPort.Value.bits[i]].Add(port);
+                    }
+                    netList.Add(port);
                 }
             }
 
             foreach (var yosysCell in yosysCells)
             {
-                var cell = ConvertYosysCell(yosysCell, yosysRAM, odd, even);
+                var cell = ConvertYosysCell(yosysCell);
+                if (cell.type == "DFFP")
+                {
+                    var tmp = FindCellRAM(yosysCell.Value, yosysRAM);
+                    if (tmp != null)
+                    {
+                        cell = tmp;
+                    }
+                }
+                var connections = yosysCell.Value.connections;
+
+                foreach (var connectionPair in connections)
+                {
+                    var portName = connectionPair.Key;
+                    var bits = connectionPair.Value;
+                    var direction = yosysCell.Value.port_directions[portName];
+
+                    //Reject DFF_P Clock Port
+                    if ((cell.type == "DFFP"||cell.type == "RAM") && portName == "C")
+                    {
+                        continue;
+                    }
+                    
+                    if (direction == "input")
+                    {
+                        cell.inputCell[portName] = bits.First();
+                        foreach (var bit in bits)
+                        {
+                            if (!LogicInputNetList.ContainsKey(bit))
+                            {
+                                LogicInputNetList[bit] = new List<Logic>();
+                            }
+                            LogicInputNetList[bit].Add(cell);
+                        }
+                    }
+                    else if (direction == "output")
+                    {
+                        cell.outputCell[portName] = bits;
+                        if (LogicOutputNetList.ContainsKey(bits.First()))
+                        {
+                            throw new Exception("Invalid output");
+                        }
+                        LogicOutputNetList[bits.First()] = cell;
+                    }
+                }
                 netList.Add(cell);
             }
 
-            NetListResolver();
+            foreach (var port in netList.ports)
+            {
+                foreach (var bitCell in port.bitsCell)
+                {
+                    if (port.type == "input")
+                    {
+                        if (LogicInputNetList.ContainsKey(bitCell))
+                        {
+                            foreach (var logic in LogicInputNetList[bitCell])
+                            {
+                                port.bits.Add(logic.id); 
+                            }
+                        }
+                    }
+                    else if (port.type == "output")
+                    {
+                        if (LogicOutputNetList.ContainsKey(bitCell))
+                        {
+                            var logic = LogicOutputNetList[bitCell];
+                            port.bits.Add(logic.id);
+                        }
+                    }
+                }
+            }
+
+            foreach (var cell in netList.cells)
+            {
+                foreach (var portPair in cell.inputCell)
+                {
+                    if (LogicOutputNetList.ContainsKey(portPair.Value))
+                    {
+                        cell.input[portPair.Key] = LogicOutputNetList[portPair.Value].id;
+                    }
+                }
+
+                foreach (var portPair in cell.outputCell)
+                {
+                    foreach (var logicCell in portPair.Value)
+                    {
+                        if (LogicInputNetList.ContainsKey(logicCell))
+                        {
+                            foreach (var logic in LogicInputNetList[logicCell])
+                            {
+                                if (!cell.output.ContainsKey(portPair.Key))
+                                {
+                                    cell.output[portPair.Key] = new List<int>();
+                                }
+                                cell.output[portPair.Key].Add(logic.id);
+                            }
+                        }
+                    }
+                }
+            }
+            
             return netList.Serialize();
         }
 
-        private List<LogicPort> ConvertYosysPort(KeyValuePair<string, YosysPort> port)
+        private LogicPort ConvertYosysPort(string direction, string portName, int bit)
         {
-            var direction = port.Value.direction;
-            var bitWidth = port.Value.bits.Count;
-            var bits = port.Value.bits;
-            var ports = new List<LogicPort>();
-            switch (direction)
+            if (direction == "input" || direction == "output")
             {
-                case "input":
-                    if (bitWidth == 1)
-                    {
-                        ports.Add(new LogicPortInput(port.Key, bits[0], port.Key, 0));
-                    }
-                    else
-                    {
-                        for (int i = 0; i < bitWidth; i++)
-                        {
-                            ports.Add(new LogicPortInput($"{port.Key}[{i}]", bits[i], port.Key, i));
-                        }
-                    }
-
-                    return ports;
-                case "output":
-                    if (bitWidth == 1)
-                    {
-                        ports.Add(new LogicPortOutput(port.Key, bits[0], port.Key, 0));
-                    }
-                    else
-                    {
-                        for (int i = 0; i < bitWidth; i++)
-                        {
-                            ports.Add(new LogicPortOutput($"{port.Key}[{i}]", bits[i], port.Key, i));
-                        }
-                    }
-
-                    return ports;
-                default:
-                    throw new Exception($"Invalid direction token: {direction}");
+                return new LogicPort(direction, $"{portName}[{bit}]", portName, bit);
+            }
+            else
+            {
+                throw new Exception($"Invalid direction token: {direction}");
             }
         }
+        
 
-        private LogicCellRAM FindCellRAM(YosysCell cell, Dictionary<int, List<int>> ram, bool odd, bool even)
+        private LogicCellRAM FindCellRAM(YosysCell cell, Dictionary<int, List<int>> ram)
         {
             List<int> Qbit = cell.connections["Q"];
             foreach (var ramCell in ram)
@@ -124,120 +212,56 @@ namespace Iyokan_L1.Converter
                 {
                     if (Qbit.Contains(ramCell.Value[i]))
                     {
-                        if (odd)
-                        {
-                            return new LogicCellRAM(cell, ramCell.Key*2+1, i);
-                        }
-                        if (even)
-                        {
-                            return new LogicCellRAM(cell, ramCell.Key*2, i);
-                        }
-                        return new LogicCellRAM(cell, ramCell.Key, i);
+                        return new LogicCellRAM(ramCell.Key, i);
                     }
                 }
             }
             return null;
         }
 
-        private LogicCell ConvertYosysCell(KeyValuePair<string, YosysCell> cell, Dictionary<int, List<int>> ram, bool odd, bool even)
+        private LogicCell ConvertYosysCell(KeyValuePair<string, YosysCell> yosysCell)
         {
-            var type = cell.Value.type;
-            var connections = cell.Value.connections;
+            var type = yosysCell.Value.type;
+            LogicCell cell = null;
             switch (type)
             {
                 case "$_NOT_":
-                    return new LogicCellNOT(cell.Value);
+                    cell = new LogicCell("NOT");
+                    break;
                 case "$_AND_":
-                    return new LogicCellAND(cell.Value);
+                    cell = new LogicCell("AND");
+                    break;
                 case "$_ANDNOT_":
-                    return new LogicCellANDNOT(cell.Value);
+                    cell = new LogicCell("ANDNOT");
+                    break;
                 case "$_NAND_":
-                    return new LogicCellNAND(cell.Value);
+                    cell = new LogicCell("NAND");
+                    break;
                 case "$_OR_":
-                    return new LogicCellOR(cell.Value);
+                    cell = new LogicCell("OR");
+                    break;
                 case "$_XOR_":
-                    return new LogicCellXOR(cell.Value);
+                    cell = new LogicCell("XOR");
+                    break;
                 case "$_XNOR_":
-                    return new LogicCellXNOR(cell.Value);
+                    cell = new LogicCell("XNOR");
+                    break;
                 case "$_NOR_":
-                    return new LogicCellNOR(cell.Value);
+                    cell = new LogicCell("NOR");
+                    break;
                 case "$_ORNOT_":
-                    return new LogicCellORNOT(cell.Value);
+                    cell = new LogicCell("ORNOT");
+                    break;
                 case "$_DFF_P_":
-                    var cellRam = FindCellRAM(cell.Value, ram, odd, even);
-                    if (cellRam != null)
-                    {
-                        return cellRam;
-                    }
-                    return new LogicCellDFFP(cell.Value);
+                    cell = new LogicCell("DFFP");
+                    break;
                 case "$_MUX_":
-                    return new LogicCellMUX(cell.Value);
+                    cell = new LogicCell("MUX");
+                    break;
                 default:
                     throw new Exception($"Invalid type token: {type}");
             }
-        }
-
-        public List<Logic> FindIncomingNetContainsLogic(int netID)
-        {
-            List<Logic> res = new List<Logic>();
-            foreach (var port in netList.ports)
-            {
-                if (port.ContainOutputNet(netID))
-                {
-                    res.Add(port);
-                }
-            }
-
-            foreach (var cell in netList.cells)
-            {
-                if (cell.ContainInputNet(netID))
-                {
-                    res.Add(cell);
-                }
-            }
-
-            return res;
-        }
-
-        public List<Logic> FindOutgoingNetContainsLogic(int netID)
-        {
-            List<Logic> res = new List<Logic>();
-            foreach (var port in netList.ports)
-            {
-                if (port.ContainInputNet(netID))
-                {
-                    res.Add(port);
-                }
-            }
-
-            foreach (var cell in netList.cells)
-            {
-                if (cell.ContainOutputNet(netID))
-                {
-                    res.Add(cell);
-                }
-            }
-
-            return res;
-        }
-
-        private void NetListResolver()
-        {
-            foreach (var port in netList.ports)
-            {
-                port.ResolveNetList(this);
-                port.Serialize();
-                Console.WriteLine(port);
-            }
-
-            foreach (var cell in netList.cells)
-            {
-                cell.ResolveNetList(this);
-                cell.Serialize();
-                Console.WriteLine(cell);
-            }
-
-            netList.ports.RemoveAll(p => p.cellBits.Count == 0 && p.type != "output");
+            return cell;
         }
 
         private YosysNetList Deserialize()

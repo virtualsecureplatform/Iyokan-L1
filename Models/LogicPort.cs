@@ -5,48 +5,28 @@ using Newtonsoft.Json;
 
 namespace Iyokan_L1.Models
 {
-    public abstract class LogicPort : Logic
+    public class LogicPort : Logic
     {
-        public string name { get; set; }
-        [JsonIgnore] public List<Logic> cellBits;
+        private string name;
+        
+        [JsonIgnore] public List<int> bitsCell = new List<int>();
+        
+        public List<int> bits = new List<int>();
 
-        [JsonIgnore] public int yosysBit { get; set; }
+        public string portName { get; }
 
-        public List<int> bits;
-
-        public string portName { get; set; }
-
-        public int portBit { get; set; }
-
-        [JsonIgnore] public LogicNetList parentNetList { get; set; }
-
-        public bool ContainOutputNet(int netID)
+        public int portBit { get; }
+        public LogicPort(string type, string name, string portName, int portBit)
         {
-            if (type != "output")
-            {
-                return false;
-            }
-
-            return yosysBit == netID;
+            this.name = name;
+            this.type = type;
+            this.portName = portName;
+            this.portBit = portBit;
         }
 
-        public bool ContainInputNet(int netID)
+        public override string ToString()
         {
-            if (type != "input")
-            {
-                return false;
-            }
-
-            return yosysBit == netID;
-        }
-
-        public override void Serialize()
-        {
-            bits.RemoveAll(p => true);
-            for (int i = 0; i < cellBits.Count; i++)
-            {
-                bits.Add(cellBits[i].id);
-            }
+            return $"[Port {type}] name:{this.name} id:{this.id} type:{this.type} to:{bits.ToString<int>()}";
         }
     }
 }
