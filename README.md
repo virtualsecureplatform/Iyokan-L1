@@ -4,18 +4,11 @@
 ## Dependency
 please install below package
 ```
-yosys
 dotnet
 ```
 
 ## Build
-First, Synthesize verilog format file with yosys
-```
-cp /path/to/VSPCore.v .
-yosys build.ys
-```
-
-Next, Build Iyokan-L1 and convert yosys result json to original format.
+Build Iyokan-L1 and convert yosys result json to original format.
 ```
 dotnet run -i vsp-core.json -o vsp-core-converted.json
 ```
