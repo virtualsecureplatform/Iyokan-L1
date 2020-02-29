@@ -20,6 +20,10 @@ namespace Iyokan_L1.Models
         
         public LogicCell(){}
 
+        public override void UpdatePriority(int pri)
+        {
+            
+        }
         public override string ToString()
         {
             return

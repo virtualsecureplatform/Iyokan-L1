@@ -24,6 +24,14 @@ namespace Iyokan_L1.Models
             this.portBit = portBit;
         }
 
+        public override void UpdatePriority(int pri)
+        {
+            if (pri > priority)
+            {
+                priority = pri;
+            }
+        }
+
         public override string ToString()
         {
             return $"[Port {type}] name:{this.name} id:{this.id} type:{this.type} to:{bits.ToString<int>()}";

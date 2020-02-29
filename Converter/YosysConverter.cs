@@ -18,7 +18,9 @@ namespace Iyokan_L1.Converter
         public Dictionary<int, List<Logic>> LogicInputNetList = new Dictionary<int, List<Logic>>();
         
         public Dictionary<int, Logic> LogicOutputNetList = new Dictionary<int, Logic>();
-
+        
+        private List<Logic> prioritySolverStartingLogics = new List<Logic>();
+        
         public YosysConverter(string jsonPath)
         {
             this.jsonPath = jsonPath;
@@ -70,6 +72,7 @@ namespace Iyokan_L1.Converter
                     if (yosysPort.Value.direction == "input")
                     {
                         LogicOutputNetList[yosysPort.Value.bits[i]] = port;
+                        prioritySolverStartingLogics.Add(port);
                     }
                     else if (yosysPort.Value.direction == "output")
                     {
@@ -88,6 +91,7 @@ namespace Iyokan_L1.Converter
                 var cell = ConvertYosysCell(yosysCell);
                 if (cell.type == "DFFP")
                 {
+                    prioritySolverStartingLogics.Add(cell);
                     var tmp = FindCellRAM(yosysCell.Value, yosysRAM);
                     if (tmp != null)
                     {
@@ -144,6 +148,7 @@ namespace Iyokan_L1.Converter
                             foreach (var logic in LogicInputNetList[bitCell])
                             {
                                 port.bits.Add(logic.id); 
+                                port.outputLink.Add(logic.id, logic);
                             }
                         }
                     }
@@ -153,6 +158,8 @@ namespace Iyokan_L1.Converter
                         {
                             var logic = LogicOutputNetList[bitCell];
                             port.bits.Add(logic.id);
+                            port.inputLink.Add(logic.id, logic);
+                            port.tmpInputLink.Add(logic.id, logic);
                         }
                     }
                 }
@@ -164,7 +171,10 @@ namespace Iyokan_L1.Converter
                 {
                     if (LogicOutputNetList.ContainsKey(portPair.Value))
                     {
-                        cell.input[portPair.Key] = LogicOutputNetList[portPair.Value].id;
+                        var logic = LogicOutputNetList[portPair.Value];
+                        cell.inputLink.Add(logic.id, logic);
+                        cell.tmpInputLink.Add(logic.id, logic);
+                        cell.input[portPair.Key] = logic.id;
                     }
                 }
 
@@ -181,13 +191,79 @@ namespace Iyokan_L1.Converter
                                     cell.output[portPair.Key] = new List<int>();
                                 }
                                 cell.output[portPair.Key].Add(logic.id);
+                                cell.outputLink.Add(logic.id, logic);
                             }
                         }
                     }
                 }
             }
+
+            var sorted = UpdatePriority();
+            foreach (var cell in sorted)
+            {
+                Console.WriteLine($"Logic:{cell.id} Type:{cell.type} Priority:{cell.priority}");
+            }
             
             return netList.Serialize();
+        }
+
+        /*
+         L ← トポロジカルソートした結果を蓄積する空リスト
+         S ← 入力辺を持たないすべてのノードの集合
+
+         while S が空ではない do
+            S からノード n を削除する
+            L に n を追加する
+            for each n の出力辺 e とその先のノード m do
+                辺 e をグラフから削除する
+                if m がその他の入力辺を持っていなければ then
+                    m を S に追加する
+         if グラフに辺が残っている then
+            閉路があり DAG でないので中断
+         */
+        public List<Logic> UpdatePriority()
+        {
+            var res = new List<Logic>();
+            var nodeWithoutInput = new List<Logic>(prioritySolverStartingLogics);
+            while (nodeWithoutInput.Count > 0)
+            {
+                var node = nodeWithoutInput.First();
+                nodeWithoutInput.Remove(node);
+
+                if (node.type == "DFFP" || node.type == "RAM" || node.tmpInputLink.Count == 0)
+                {
+                    node.priority = 0;
+                }
+                else
+                {
+                    int max_priority = 0;
+                    foreach (var input in node.tmpInputLink.Values)
+                    {
+                        if (input.priority > max_priority)
+                        {
+                            max_priority = input.priority;
+                        }
+                    }
+                    node.priority = max_priority + 1;
+                }
+                res.Add(node);
+                foreach (var m in node.outputLink.Values)
+                {
+                    // Ignore DFFP,RAM bacause these logics do not have input on DAG
+                    if (m.type == "DFFP" || m.type == "RAM") continue;
+                    
+                    if (!m.inputLink.ContainsKey(node.id))
+                    {
+                        throw new Exception("Invalid DAG");
+                    }
+                    m.inputLink.Remove(node.id);
+                    if (m.inputLink.Count() == 0)
+                    {
+                        nodeWithoutInput.Add(m);
+                    }
+                }
+            }
+            return res;
         }
 
         private LogicPort ConvertYosysPort(string direction, string portName, int bit)
