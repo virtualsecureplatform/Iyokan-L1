@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Iyokan_L1.Converter;
+using Newtonsoft.Json;
 
 namespace Iyokan_L1.Models
 {
@@ -8,14 +9,15 @@ namespace Iyokan_L1.Models
         public int id { get; set; }
         public string type { get; set; }
         public int priority { get; set; } = 0;
+        
+        // This link connects to input logics
+        [JsonIgnore] public Dictionary<int, Logic> inputLink = new Dictionary<int, Logic>();
+        [JsonIgnore] public Dictionary<int, Logic> tmpInputLink = new Dictionary<int, Logic>();
 
-        public abstract void RemoveAttachOutputLogic(Logic removeLogic, Logic attachLogic);
-        public abstract void RemoveAttachInputLogic(Logic removeLogic, Logic attachLogic);
-        public abstract void Serialize();
-        public abstract void ResolveNetList(YosysConverter converter);
+        // This link  onnects to output logics
+        [JsonIgnore] public Dictionary<int, Logic> outputLink = new Dictionary<int, Logic>();
 
         public abstract void UpdatePriority(int pri);
-        public abstract List<Logic> GetOutput();
-        public abstract List<Logic> GetInput();
+
     }
 }
