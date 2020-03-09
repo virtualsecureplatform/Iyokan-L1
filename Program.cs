@@ -16,8 +16,6 @@ namespace Iyokan_L1
             conv1.Convert(false, false);
             var netList = conv1.netList;
             var res = netList.Serialize();
-            //Console.WriteLine(res);
-            //netList.UpdatePriority();
             FileStream fs = new FileStream(args[1], FileMode.Create);
             StreamWriter sw = new StreamWriter(fs);
             sw.WriteLine(res);

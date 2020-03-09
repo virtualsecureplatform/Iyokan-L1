@@ -198,12 +198,6 @@ namespace Iyokan_L1.Converter
                 }
             }
 
-            var sorted = UpdatePriority();
-            foreach (var cell in sorted)
-            {
-                Console.WriteLine($"Logic:{cell.id} Type:{cell.type} Priority:{cell.priority}");
-            }
-            
             return netList.Serialize();
         }
 
