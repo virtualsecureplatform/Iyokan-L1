@@ -27,30 +27,13 @@ namespace Iyokan_L1.Converter
             netList = new LogicNetList();
         }
 
-        public string Convert(bool odd, bool even)
+        public string Convert(bool convertRam)
         {
             var yosysNetList = Deserialize();
             var yosysModule = yosysNetList.modules.First();
             var yosysPorts = yosysModule.Value.ports;
             var yosysCells = yosysModule.Value.cells;
             var yosysNets = yosysModule.Value.netnames;
-            var yosysRAM = new Dictionary<int, List<int>>();
-            
-            foreach (var yosysNet in yosysNets)
-            {
-                if (yosysNet.Key.Contains("memA.mem["))
-                {
-                    Console.WriteLine(yosysNet.Key);
-                    string match = Regex.Replace(yosysNet.Key, "[^0-9]", "");
-                    yosysRAM[Int32.Parse(match)*2+1] = yosysNet.Value.bits;
-                }
-                else if (yosysNet.Key.Contains("memB.mem["))
-                {
-                    Console.WriteLine(yosysNet.Key);
-                    string match = Regex.Replace(yosysNet.Key, "[^0-9]", "");
-                    yosysRAM[Int32.Parse(match)*2] = yosysNet.Value.bits;
-                }
-            }
 
             foreach (var yosysPort in yosysPorts)
             {
@@ -92,11 +75,6 @@ namespace Iyokan_L1.Converter
                 if (cell.type == "DFFP")
                 {
                     prioritySolverStartingLogics.Add(cell);
-                    var tmp = FindCellRAM(yosysCell.Value, yosysRAM);
-                    if (tmp != null)
-                    {
-                        cell = tmp;
-                    }
                 }
                 var connections = yosysCell.Value.connections;
 
@@ -193,6 +171,29 @@ namespace Iyokan_L1.Converter
                                 cell.output[portPair.Key].Add(logic.id);
                                 cell.outputLink.Add(logic.id, logic);
                             }
+                        }
+                    }
+                }
+            }
+
+            if (convertRam)
+            {
+                foreach (var port in netList.ports)
+                {
+                    if (!port.portName.Contains("io_debug") && port.type != "output")
+                    {
+                        continue;
+                    }
+
+                    foreach (var cellPair in port.inputLink)
+                    {
+                        var cell = (LogicCell) cellPair.Value;
+                        if (cell.type == "DFFP")
+                        {
+                            cell.ramBit = port.portBit;
+                            string match = Regex.Replace(port.portName, "[^0-9]", "");
+                            cell.ramAddress = Int32.Parse(match);
+                            cell.type = "RAM";
                         }
                     }
                 }

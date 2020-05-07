@@ -10,10 +10,7 @@ namespace Iyokan_L1.Models
 {
     public class LogicCellRAM : LogicCell
     {
-        public int ramAddress { get; }
 
-        public int ramBit { get; }
-        
         public LogicCellRAM(int ramAddress, int ramBit)
         {
             type = "RAM";

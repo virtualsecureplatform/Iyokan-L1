@@ -13,6 +13,10 @@ namespace Iyokan_L1.Models
         public Dictionary<string, int> input = new Dictionary<string, int>();
         public Dictionary<string, List<int>> output = new Dictionary<string, List<int>>();
 
+        public int ramAddress { get; set; } = 0;
+
+        public int ramBit { get; set; } = 0;
+
         public LogicCell(string type)
         {
             this.type = type;

@@ -11,8 +11,9 @@ namespace Iyokan_L1
     {
         static void Main(string[] args)
         {
+            var convertRam = args.Length == 3 && args[2] == "genRAM";
             YosysConverter conv1 = new YosysConverter(args[0]);
-            conv1.Convert(false, false);
+            conv1.Convert(convertRam);
             var netList = conv1.netList;
             var res = netList.Serialize();
             FileStream fs = new FileStream(args[1], FileMode.Create);
