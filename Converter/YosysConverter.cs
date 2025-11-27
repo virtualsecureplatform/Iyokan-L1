@@ -72,6 +72,11 @@ namespace Iyokan_L1.Converter
             foreach (var yosysCell in yosysCells)
             {
                 var cell = ConvertYosysCell(yosysCell);
+                if (cell == null)
+                {
+                    // Skip metadata cells like $scopeinfo
+                    continue;
+                }
                 if (cell.type == "DFFP")
                 {
                     prioritySolverStartingLogics.Add(cell);
@@ -329,6 +334,9 @@ namespace Iyokan_L1.Converter
                 case "$_MUX_":
                     cell = new LogicCell("MUX");
                     break;
+                case "$scopeinfo":
+                    // Skip scopeinfo metadata cells
+                    return null;
                 default:
                     throw new Exception($"Invalid type token: {type}");
             }
